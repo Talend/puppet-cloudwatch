@@ -3,15 +3,6 @@
 #
 # Full description of class cloudwatch here.
 #
-# Parameters
-# ----------
-#
-# Document parameters here.
-#
-# * `sample parameter`
-# Explanation of what this parameter affects and what it defaults to.
-# e.g. "Specify one or more upstream ntp servers as an array."
-#
 # Variables
 # ----------
 #
@@ -28,21 +19,27 @@
 # --------
 #
 # @example
-#    class { 'cloudwatch':
-#      servers => [ 'pool.ntp.org', 'ntp.local.company.com' ],
-#    }
+#    class { 'cloudwatch': }
 #
 # Authors
 # -------
 #
-# Author Name <author@domain.com>
+# Author Name <andreas.heumaier@nordcloud.com>
 #
 # Copyright
 # ---------
 #
-# Copyright 2016 Your name here, unless otherwise noted.
+# Copyright 2016 Talend, unless otherwise noted.
 #
 class cloudwatch {
 
+  include awscli
+
+  file{ ['/opt/talend','/opt/talend/cloudwatch', '/opt/talend/cloudwatch/metrics.d']:
+    ensure => directory,
+    mode   => '0755',
+    owner  => 'root',
+    group  => 'root',
+  }
 
 }

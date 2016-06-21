@@ -1,0 +1,8 @@
+fixtures:
+  symlinks:
+    cloudwatch: '#{source_dir}'
+  forge_modules:
+    stdlib: "puppetlabs/stdlib"
+    concat: "puppetlabs/concat"
+    awscli: "jdowning/awscli"
+    epel: "stahnma/epel"
