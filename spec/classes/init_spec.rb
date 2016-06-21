@@ -10,5 +10,12 @@ describe 'cloudwatch' do
 
     it { should contain_class('cloudwatch') }
     it { should contain_class('awscli') }
+
+    it {should contain_file('/opt/talend/cloudwatch/metrics.d').with({
+                                                                         'mode' => '0755',
+                                                                         'ensure' => 'directory'
+                                                                     })
+    }
+
   end
 end
