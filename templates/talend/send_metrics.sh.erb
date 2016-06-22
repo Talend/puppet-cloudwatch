@@ -1,0 +1,38 @@
+#! /bin/bash
+
+AWSCLI=`which aws`
+METRICS_PATH="/opt/talend/cloudwatch/metrics.d"
+
+###                            ###
+# Don't modify beyond this point #
+###                            ###
+
+if  [[ ! $AWSCLI =~ ^/.*/aws$ ]]; then
+    echo 'ERROR: No AWS CLI in PATH found'; exit 1
+fi
+
+collect() {
+    find $METRICS_PATH -type f -executable -print
+}
+
+send_metrics() {
+ echo "$AWSCLI cloudwatch put-metric-data \
+ --metric-name $1 \
+ --namespace $2 \
+ --value $3 \
+ --timestamp $(date --utc +%FT%TZ) "
+}
+
+measure () {
+    METRIC_NAME=$(echo $1 | cut -f6 -d'/')
+    METRIC_NAMESPACE=$METRIC_NAME
+    METRIC_DATA=$( echo $( $1 )| tr ' ', ';' )
+    send_metrics $METRIC_NAME $METRIC_NAMESPACE $METRIC_DATA
+}
+
+### main
+
+for file_path in $(collect)
+do
+    measure $file_path
+done

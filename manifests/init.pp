@@ -42,4 +42,17 @@ class cloudwatch {
     group  => 'root',
   }
 
+
+  file{'/usr/local/bin/send_metrics':
+    ensure  => 'present',
+    mode    => '0744',
+    content => template('cloudwatch/talend/send_metrics.sh.erb')
+  }
+
+  cron{'cloudwatch_metrics':
+    command => '/usr/local/bin/send_metrics',
+    user    => 'root',
+    minute  => '*/5',
+  }
+
 }

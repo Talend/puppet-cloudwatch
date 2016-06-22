@@ -1,11 +1,11 @@
 require 'spec_helper_acceptance'
 
-shared_examples 'cloudwatchlogs::installed' do |parameters|
+shared_examples 'cloudwatch::installed' do |parameters|
 
   it 'installs without errors' do
     pp = <<-EOS
 
-    cloudwatchlogs::log{'beaker_test':
+    cloudwatch::metric{'default':
       #{parameters.to_s}
     }
 
