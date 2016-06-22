@@ -16,6 +16,8 @@ RSpec.configure do |c|
     copy_module_to(host, :source => proj_root, :module_name => 'cloudwatch')
     on host, puppet('module', 'install', 'puppetlabs-stdlib'), acceptable_exit_codes: [0, 1]
     on host, puppet('module', 'install', 'puppetlabs-concat'), acceptable_exit_codes: [0, 1]
+    on host, puppet('module', 'install', 'jdowning-awscli'), acceptable_exit_codes: [0, 1]
+    on host, puppet('module', 'install', 'stahnma-epel'), acceptable_exit_codes: [0, 1]
 
     on host, 'mkdir -p /etc/facter/facts.d'
     on host, 'mkdir -p /root/.aws'
