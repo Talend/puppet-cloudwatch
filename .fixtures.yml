@@ -5,4 +5,5 @@ fixtures:
     stdlib: "puppetlabs/stdlib"
     concat: "puppetlabs/concat"
     awscli: "jdowning/awscli"
+    aws: "puppetlabs-aws"
     epel: "stahnma/epel"

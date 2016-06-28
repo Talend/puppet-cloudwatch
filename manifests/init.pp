@@ -31,7 +31,13 @@
 #
 # Copyright 2016 Talend, unless otherwise noted.
 #
-class cloudwatch {
+class cloudwatch (
+
+  $metrics_path = '/opt/talend/cloudwatch/metrics.d'
+
+){
+
+  validate_absolute_path($metrics_path)
 
   include awscli
 
@@ -41,7 +47,6 @@ class cloudwatch {
     owner  => 'root',
     group  => 'root',
   }
-
 
   file{'/usr/local/bin/send_metrics':
     ensure  => 'present',

@@ -18,9 +18,11 @@ RSpec.configure do |c|
     on host, puppet('module', 'install', 'puppetlabs-concat'), acceptable_exit_codes: [0, 1]
     on host, puppet('module', 'install', 'jdowning-awscli'), acceptable_exit_codes: [0, 1]
     on host, puppet('module', 'install', 'stahnma-epel'), acceptable_exit_codes: [0, 1]
+    on host, puppet('module', 'install', 'puppetlabs-aws'), acceptable_exit_codes: [0, 1]
 
     on host, 'mkdir -p /etc/facter/facts.d'
     on host, 'mkdir -p /root/.aws'
+    on host, 'gem install aws-sdk-core retries'
     create_remote_file host, '/etc/facter/facts.d/role_facts.txt', "puppet_role=cloudwatch", :protocol => 'rsync'
     create_remote_file host, '/root/.aws/credentials', "[default]\naws_access_key_id=#{ENV['AWS_ACCESS_KEY_ID']}\naws_secret_access_key=#{ENV['AWS_SECRET_ACCESS_KEY']}", :protocol => 'rsync'
     create_remote_file host, '/root/.aws/config', "[default]\nregion = us-east-1\noutput = json", :protocol => 'rsync'

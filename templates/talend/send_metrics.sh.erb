@@ -1,18 +1,20 @@
 #! /bin/bash
 
 AWSCLI=`which aws`
-METRICS_PATH="/opt/talend/cloudwatch/metrics.d"
+METRICS_PATH=<%= @metrics_path %>
 
 ###                            ###
 # Don't modify beyond this point #
 ###                            ###
 
-if  [[ ! $AWSCLI =~ ^/.*/aws$ ]]; then
-    echo 'ERROR: No AWS CLI in PATH found'; exit 1
-fi
+awscli_installed () {
+  if  [[ ! $AWSCLI =~ ^/.*/aws$ ]]; then
+      echo 'ERROR: No AWS CLI in PATH found'; exit 1
+  fi
+}
 
 collect() {
-    find $METRICS_PATH -type f -executable -print
+  find $METRICS_PATH -type f -executable -print
 }
 
 send_metrics() {
@@ -24,15 +26,17 @@ send_metrics() {
 }
 
 measure () {
-    METRIC_NAME=$(echo $1 | cut -f6 -d'/')
-    METRIC_NAMESPACE=$METRIC_NAME
-    METRIC_DATA=$( echo $( $1 )| tr ' ', ';' )
-    send_metrics $METRIC_NAME $METRIC_NAMESPACE $METRIC_DATA
+  METRIC_NAME=$(echo $1 | cut -f6 -d'/')
+  METRIC_NAMESPACE=<%= @puppet_role %>
+  METRIC_DATA=$( echo $( $1 )| tr ' ', ';' )
+  send_metrics $METRIC_NAME $METRIC_NAMESPACE $METRIC_DATA
 }
 
 ### main
-
-for file_path in $(collect)
-do
+if awscli_installed
+then
+  for file_path in $(collect)
+  do
     measure $file_path
-done
+  done
+fi
