@@ -2,7 +2,7 @@ require 'spec_helper_acceptance'
 
 shared_examples 'cloudwatch::running' do
 
-  describe file('/opt/talend/cloudwatch/metrics.d/default_metric') do
+  describe file('/opt/talend/cloudwatch/metrics.d/DiskPercentage') do
     it { should be_file }
     it { should be_mode 744 }
     its(:content) { should match /Successfylly/ }
@@ -15,7 +15,7 @@ shared_examples 'cloudwatch::running' do
   end
 
   describe cron do
-    it { should have_entry '*/5 * * * * /usr/local/bin/send_metrics' }
+    it { should have_entry '*/1 * * * * /usr/local/bin/send_metrics' }
   end
 
 end

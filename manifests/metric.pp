@@ -35,12 +35,13 @@ define cloudwatch::metric (
   $metric_executable        = undef,
   $alarm_enable             = false,
   $alarm_threshold          = undef,
+  $alarm_namespace          = "Talend/${::puppet_role}",
   $alarm_statistic          = 'Average',
   $alarm_period             = '300',
   $alarm_evaluation_periods = '3',
   $alarm_comparison_operator= 'GreaterThanThreshold',
   $alarm_dimensions         = undef,
-  $alarm_actions       = "arn:aws:automate:${aws_region}:ec2:recover"
+  $alarm_actions            = undef
 
 ) {
 
@@ -50,7 +51,7 @@ define cloudwatch::metric (
 
   include cloudwatch
 
-  file{"/opt/talend/cloudwatch/metrics.d/${name}_metric":
+  file{"/opt/talend/cloudwatch/metrics.d/${name}":
     ensure  => 'present',
     content => template($metric_executable),
     mode    => '0744',
@@ -63,7 +64,7 @@ define cloudwatch::metric (
     cloudwatch_alarm {$name:
       ensure              => present,
       metric              => $name,
-      namespace           => $::puppet_role,
+      namespace           => $alarm_namespace,
       statistic           => $alarm_statistic,
       period              => $alarm_period,
       evaluation_periods  => $alarm_evaluation_periods,
@@ -71,7 +72,7 @@ define cloudwatch::metric (
       comparison_operator => $alarm_comparison_operator,
       region              => $aws_region,
       dimensions          => $alarm_dimensions,
-      alarm_actions        => $alarm_actions
+      alarm_actions       => $alarm_actions
     }
   }
 

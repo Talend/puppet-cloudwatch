@@ -57,7 +57,7 @@ class cloudwatch (
   cron{'cloudwatch_metrics':
     command => '/usr/local/bin/send_metrics',
     user    => 'root',
-    minute  => '*/5',
+    minute  => '*/1',
   }
 
 }

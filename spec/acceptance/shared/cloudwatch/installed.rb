@@ -5,7 +5,7 @@ shared_examples 'cloudwatch::installed' do |parameters|
   it 'installs without errors' do
     pp = <<-EOS
 
-    cloudwatch::metric{'default':
+    cloudwatch::metric{'DiskPercentage':
       #{parameters.to_s}
     }
 
