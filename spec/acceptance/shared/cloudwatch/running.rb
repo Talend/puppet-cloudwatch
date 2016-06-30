@@ -5,7 +5,7 @@ shared_examples 'cloudwatch::running' do
   describe file('/opt/talend/cloudwatch/metrics.d/DiskPercentage') do
     it { should be_file }
     it { should be_mode 744 }
-    its(:content) { should match /Successfylly/ }
+    its(:content) { should match /Disk_Metric/ }
   end
 
   describe file('/usr/local/bin/send_metrics') do
