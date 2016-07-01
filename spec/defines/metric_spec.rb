@@ -11,7 +11,7 @@ describe 'cloudwatch::metric' do
 
     it {should compile}
     it { should contain_class('cloudwatch') }
-    it {should contain_file('/opt/talend/cloudwatch/metrics.d/default_metric').with_mode('0744') }
+    it {should contain_file('/opt/talend/cloudwatch/metrics.d/default').with_mode('0744') }
 
   end
 
@@ -28,7 +28,7 @@ describe 'cloudwatch::metric' do
     it {should compile}
     it { should contain_class('cloudwatch') }
     it { should contain_cloudwatch_alarm('default') }
-    it {should contain_file('/opt/talend/cloudwatch/metrics.d/default_metric').with_mode('0744') }
+    it {should contain_file('/opt/talend/cloudwatch/metrics.d/default').with_mode('0744') }
 
   end
 end

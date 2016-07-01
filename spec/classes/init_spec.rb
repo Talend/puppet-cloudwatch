@@ -20,7 +20,7 @@ describe 'cloudwatch' do
     it { should contain_cron('cloudwatch_metrics').with({
                                                             'command' => '/usr/local/bin/send_metrics',
                                                             'user'    => 'root',
-                                                            'minute'  => '*/5',
+                                                            'minute'  => '*/1',
                                                         }) }
 
   end

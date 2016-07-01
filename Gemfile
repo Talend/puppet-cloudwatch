@@ -1,18 +1,38 @@
-source ENV['GEM_SOURCE'] || 'https://rubygems.org'
+source "https://rubygems.org"
 
-puppetversion = ENV.key?('PUPPET_VERSION') ? "#{ENV['PUPPET_VERSION']}" : ['>= 3.3']
-gem 'metadata-json-lint'
+# We expect you have puppet installed
 gem 'puppet', '3.8'
-gem 'puppetlabs_spec_helper', '>= 1.0.0'
-gem 'puppet-lint', '>= 1.0.0'
-gem 'facter', '>= 1.7.0'
-gem 'rspec-puppet'
-gem 'rspec-retry'
-gem 'serverspec-aws-resources', :github => 'talend/serverspec-aws-resources'
 
-# rspec must be v2 for ruby 1.8.7
-if RUBY_VERSION >= '1.8.7' and RUBY_VERSION < '1.9'
-  gem 'rspec', '~> 2.0'
+gem 'r10k'
+gem 'json'
+gem 'hiera-eyaml'
+gem 'hiera-eyaml-kms'
+gem 'aws-sdk-core', '2.0.5'
+gem 'retries'
+
+
+group :development do
+  gem 'beaker', :git => 'https://github.com/Talend/beaker.git', :branch => 'aheumaier-patch-2' # https://tickets.puppetlabs.com/browse/BKR-782
+  gem 'beaker-puppet_install_helper'
+  gem 'beaker-rspec'
+  gem 'puppetlabs_spec_helper', :git => 'https://github.com/Talend/puppetlabs_spec_helper.git'
+
+  gem 'spec'
+  gem 'rspec', '~> 3.4'
+  gem 'rspec-core', '~> 3.4'
+  gem 'rspec-expectations', '~> 3.4'
+  gem 'rspec-mocks', '~> 3.4'
+  gem 'rspec-support', '~> 3.4'
+  gem 'rspec-puppet'
+  gem 'rspec-puppet-facts'
+  gem 'rspec-retry'
+
+  gem 'puppet-lint'
+  gem 'puppet-syntax'
+
+  gem 'ci_reporter'
+  gem 'serverspec'
+  gem 'serverspec-aws-resources', :git => 'https://github.com/Talend/serverspec-aws-resources.git'
 end
 
 group :system_tests do
