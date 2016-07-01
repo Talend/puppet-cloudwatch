@@ -41,20 +41,20 @@ class cloudwatch (
 
   include awscli
 
-  file{ ['/opt/talend','/opt/talend/cloudwatch', '/opt/talend/cloudwatch/metrics.d']:
+  file { ['/opt/talend','/opt/talend/cloudwatch', '/opt/talend/cloudwatch/metrics.d']:
     ensure => directory,
     mode   => '0755',
     owner  => 'root',
     group  => 'root',
   }
 
-  file{'/usr/local/bin/send_metrics':
+  file { '/usr/local/bin/send_metrics':
     ensure  => 'present',
     mode    => '0744',
     content => template('cloudwatch/talend/send_metrics.sh.erb')
   }
 
-  cron{'cloudwatch_metrics':
+  cron { 'cloudwatch_metrics':
     command => '/usr/local/bin/send_metrics',
     user    => 'root',
     minute  => '*/1',

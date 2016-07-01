@@ -51,7 +51,7 @@ define cloudwatch::metric (
 
   include cloudwatch
 
-  file{"/opt/talend/cloudwatch/metrics.d/${name}":
+  file { "/opt/talend/cloudwatch/metrics.d/${name}":
     ensure  => 'present',
     content => template($metric_executable),
     mode    => '0744',
@@ -61,7 +61,7 @@ define cloudwatch::metric (
   }
 
   if $alarm_enable {
-    cloudwatch_alarm {$name:
+    cloudwatch_alarm { $name:
       ensure              => present,
       metric              => $name,
       namespace           => $alarm_namespace,
