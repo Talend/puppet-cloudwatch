@@ -14,3 +14,11 @@ gem 'serverspec-aws-resources', :github => 'talend/serverspec-aws-resources'
 if RUBY_VERSION >= '1.8.7' and RUBY_VERSION < '1.9'
   gem 'rspec', '~> 2.0'
 end
+
+group :system_tests do
+  gem 'librarian-puppet'
+  gem 'test-kitchen'
+  gem 'kitchen-sync'
+  gem 'kitchen-puppet'
+  gem 'kitchen-vagrant'
+end
