@@ -35,7 +35,7 @@ define cloudwatch::metric (
   $metric_executable        = undef,
   $alarm_enable             = false,
   $alarm_threshold          = undef,
-  $alarm_namespace          = "Talend/${::puppet_role}",
+  $alarm_namespace          = "Talend/Alarm",
   $alarm_statistic          = 'Average',
   $alarm_period             = '300',
   $alarm_evaluation_periods = '3',

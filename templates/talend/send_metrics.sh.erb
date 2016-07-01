@@ -27,7 +27,7 @@ send_metrics() {
 
 measure () {
   METRIC_NAME=$(echo $1 | cut -f6 -d'/')
-  METRIC_NAMESPACE=<%= @puppet_role %>
+  METRIC_NAMESPACE=<%= @metrics_namespace %>
   METRIC_DATA=$( echo $( $1 )| tr ' ', ';' )
   send_metrics $METRIC_NAME $METRIC_NAMESPACE $METRIC_DATA
 }

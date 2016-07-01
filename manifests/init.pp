@@ -33,7 +33,8 @@
 #
 class cloudwatch (
 
-  $metrics_path = '/opt/talend/cloudwatch/metrics.d'
+  $metrics_namespace = 'Talend'
+  $metrics_path      = '/opt/talend/cloudwatch/metrics.d',
 
 ){
 
