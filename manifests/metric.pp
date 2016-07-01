@@ -31,7 +31,7 @@
 # Copyright 2016 Your name here, unless otherwise noted.
 define cloudwatch::metric (
 
-  $aws_region               = hiera('aws-region', 'us-east-1'),
+  $aws_region               = undef,
   $metric_executable        = undef,
   $alarm_enable             = false,
   $alarm_threshold          = undef,
@@ -47,6 +47,10 @@ define cloudwatch::metric (
 
   if $metric_executable == undef {
     fail('ERROR: param metric_executable is unset. This value has to be defined ')
+  }
+
+  if $aws_region == undef {
+    fail('ERROR: param aws_region is unset. This value has to be defined ')
   }
 
   include cloudwatch
