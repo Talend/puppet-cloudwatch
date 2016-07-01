@@ -31,11 +31,11 @@
 # Copyright 2016 Your name here, unless otherwise noted.
 define cloudwatch::metric (
 
-  $aws_region               = undef,
+  $aws_region               = 'us-east-1',
   $metric_executable        = undef,
   $alarm_enable             = false,
   $alarm_threshold          = undef,
-  $alarm_namespace          = "Talend/Alarm",
+  $alarm_namespace          = 'default/alarm',
   $alarm_statistic          = 'Average',
   $alarm_period             = '300',
   $alarm_evaluation_periods = '3',
@@ -52,6 +52,7 @@ define cloudwatch::metric (
   if $aws_region == undef {
     fail('ERROR: param aws_region is unset. This value has to be defined ')
   }
+  validate_string($aws_region)
 
   include cloudwatch
 
