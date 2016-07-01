@@ -1,0 +1,27 @@
+FORGE
+  remote: https://forgeapi.puppetlabs.com
+  specs:
+    jdowning-awscli (1.3.0)
+      puppetlabs-concat (< 2.0.0, >= 1.0.0)
+      puppetlabs-stdlib (< 5.0.0, >= 4.0.0)
+      stahnma-epel (< 2.0.0, >= 1.0.0)
+    puppetlabs-concat (1.2.5)
+      puppetlabs-stdlib (< 5.0.0, >= 3.2.0)
+    puppetlabs-stdlib (4.12.0)
+    stahnma-epel (1.2.2)
+      puppetlabs-stdlib (>= 3.0.0)
+
+GIT
+  remote: https://github.com/Talend/puppetlabs-aws.git
+  ref: master
+  sha: 764306629ba3a7cb1f1825c57c2f77f83a82522f
+  specs:
+    puppetlabs-aws (1.4.0)
+
+DEPENDENCIES
+  jdowning-awscli (>= 0)
+  puppetlabs-aws (>= 0)
+  puppetlabs-concat (~> 1.0)
+  puppetlabs-stdlib (>= 0)
+  stahnma-epel (>= 0)
+
