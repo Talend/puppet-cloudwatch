@@ -7,7 +7,7 @@ gem 'r10k'
 gem 'json'
 gem 'hiera-eyaml'
 gem 'hiera-eyaml-kms'
-gem 'aws-sdk-core', '2.0.5'
+gem 'aws-sdk-core', '~> 2.3'
 gem 'retries'
 
 

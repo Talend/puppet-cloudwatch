@@ -1,5 +1,5 @@
 {
-  "name": "puppet-cloudwatch",
+  "name": "talend-cloudwatch",
   "version": "0.1.0",
   "author": "talend",
   "summary": "Puppet Module for providing AWS cloudwatch alarms and metrics",
@@ -8,11 +8,10 @@
   "project_page": "https://github.com/Talend/puppet-cloudwatch",
   "issues_url": "https://github.com/Talend/puppet-cloudwatch/issues",
   "dependencies": [
-    {"name":"puppetlabs-stdlib"},
+    {"name":"jdowning-awscli", "version_requirement": "1.x"},
     {"name":"puppetlabs-concat", "version_requirement": "1.x"},
-    {"name":"jdowning-awscli"},
-    {"name":"stahnma-epel"}
-  ],
-  "data_provider": null
+    {"name":"puppetlabs-stdlib", "version_requirement": ">= 1.0.0 < 5.0.0"},
+    {"name":"stahnma-epel", "version_requirement": "1.x"}
+  ]
 }
 

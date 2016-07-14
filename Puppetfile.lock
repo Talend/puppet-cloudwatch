@@ -19,9 +19,9 @@ GIT
     puppetlabs-aws (1.4.0)
 
 DEPENDENCIES
-  jdowning-awscli (>= 0)
+  jdowning-awscli (~> 1.0)
   puppetlabs-aws (>= 0)
   puppetlabs-concat (~> 1.0)
-  puppetlabs-stdlib (>= 0)
-  stahnma-epel (>= 0)
+  puppetlabs-stdlib (< 5.0.0, >= 1.0.0)
+  stahnma-epel (~> 1.0)
 
