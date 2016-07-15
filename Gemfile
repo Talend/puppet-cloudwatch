@@ -1,44 +1,21 @@
-source "https://rubygems.org"
+source 'http://rubygems.org'
 
-# We expect you have puppet installed
-gem 'puppet', '3.8'
+gem 'puppet', '~> 3.8'
+gem 'rake'
 
-gem 'r10k'
-gem 'json'
-gem 'hiera-eyaml'
-gem 'hiera-eyaml-kms'
-gem 'aws-sdk-core', '~> 2.3'
-gem 'retries'
-
+group :test do
+  gem 'metadata-json-lint'
+  gem 'puppetlabs_spec_helper'
+end
 
 group :development do
-  gem 'beaker', :git => 'https://github.com/Talend/beaker.git', :branch => 'aheumaier-patch-2' # https://tickets.puppetlabs.com/browse/BKR-782
-  gem 'beaker-puppet_install_helper'
-  gem 'beaker-rspec'
-  gem 'puppetlabs_spec_helper', :git => 'https://github.com/Talend/puppetlabs_spec_helper.git'
-
-  gem 'spec'
-  gem 'rspec', '~> 3.4'
-  gem 'rspec-core', '~> 3.4'
-  gem 'rspec-expectations', '~> 3.4'
-  gem 'rspec-mocks', '~> 3.4'
-  gem 'rspec-support', '~> 3.4'
-  gem 'rspec-puppet'
-  gem 'rspec-puppet-facts'
-  gem 'rspec-retry'
-
-  gem 'puppet-lint'
-  gem 'puppet-syntax'
-
-  gem 'ci_reporter'
-  gem 'serverspec'
-  gem 'serverspec-aws-resources', :git => 'https://github.com/Talend/serverspec-aws-resources.git'
+  gem 'vagrant-wrapper'
+  gem 'kitchen-vagrant'
 end
 
 group :system_tests do
   gem 'librarian-puppet'
   gem 'test-kitchen'
-  gem 'kitchen-sync'
   gem 'kitchen-puppet'
-  gem 'kitchen-vagrant'
+  gem 'kitchen-sync'
 end
