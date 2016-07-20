@@ -4,7 +4,7 @@ driver:
 
 provisioner:
   name: puppet_apply
-  manifests_path: test/integration
+  manifests_path: examples
   ignore_spec_fixtures: true
   custom_facts:
     aws_api_key: <%= ENV['AWS_ACCESS_KEY_ID']%>
@@ -16,7 +16,15 @@ transport:
 platforms:
   - name: centos-7.2
 
+verifier:
+  name: serverspec
+  remote_exec: false
+  extra_flags: '--require spec_helper -I spec/acceptance --format RspecJunitFormatter --out build/junit.xml'
+
 suites:
   - name: default
     provisioner:
-      manifest: default/init.pp
+      manifest: init.pp
+    verifier:
+      patterns:
+        - 'spec/acceptance/**_spec.rb'

@@ -18,4 +18,8 @@ group :system_tests do
   gem 'test-kitchen'
   gem 'kitchen-puppet'
   gem 'kitchen-sync'
+  gem 'kitchen-verifier-serverspec'
+  gem 'net-ssh'
+  gem 'serverspec'
+  gem 'rspec_junit_formatter'
 end
