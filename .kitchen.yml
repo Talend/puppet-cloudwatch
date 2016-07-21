@@ -19,7 +19,7 @@ platforms:
 verifier:
   name: serverspec
   remote_exec: false
-  extra_flags: '--require spec_helper -I spec/acceptance --format RspecJunitFormatter --out build/junit.xml'
+  extra_flags: '--require spec_helper -I spec/acceptance'
 
 suites:
   - name: default
