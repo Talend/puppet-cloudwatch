@@ -23,10 +23,10 @@ package { 'retries':
   ensure   => installed,
   provider => 'gem',
 } ->
-class { 'cloudwatch':
+class { 'cloudwatch-agent':
   metrics_namespace => 'Testing',
 } ->
-cloudwatch::metric { 'DiskPercentage':
+cloudwatch-agent::metric { 'DiskPercentage':
   aws_region        => 'eu-west-1',
   metric_executable => 'cloudwatch/talend/example_sript.sh.erb',
   alarm_enable      => false, # we do not want to call AWS APIs

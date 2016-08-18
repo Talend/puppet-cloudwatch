@@ -1,30 +1,21 @@
 # Class: cloudwatch
-# ===========================
+# =================
 #
-# Full description of class cloudwatch here.
+# Main class of the puppet-cloudwatch module.
+#
+# Does the following :
+#     * Install the CloudWatch Agent scripts
+#     * Creates a configuration file for the agent
+#     * Configure the agent to run through Cron
 #
 # Variables
-# ----------
-#
-# Here you should define a list of variables that this module would require.
-#
-# * `sample variable`
-#  Explanation of how this variable affects the function of this class and if
-#  it has a default. e.g. "The parameter enc_ntp_servers must be set by the
-#  External Node Classifier as a comma separated list of hostnames." (Note,
-#  global variables should be avoided in favor of class parameters as
-#  of Puppet 2.6.)
-#
-# Examples
-# --------
-#
-# @example
-#    class { 'cloudwatch': }
+# ---------
+# None - Variables are set on the cloudwatch::params class.
 #
 # Authors
 # -------
 #
-# Author Name <andreas.heumaier@nordcloud.com>
+# Talend DevOps Team
 #
 # Copyright
 # ---------
@@ -33,32 +24,8 @@
 #
 class cloudwatch (
 
-  $metrics_namespace = 'default',
-  $metrics_path      = '/opt/talend/cloudwatch/metrics.d',
+) inherits cloudwatch::params {
 
-){
-
-  validate_absolute_path($metrics_path)
-
-  include awscli
-
-  file { ['/opt/talend','/opt/talend/cloudwatch', '/opt/talend/cloudwatch/metrics.d']:
-    ensure => directory,
-    mode   => '0755',
-    owner  => 'root',
-    group  => 'root',
-  }
-
-  file { '/usr/local/bin/send_metrics':
-    ensure  => 'present',
-    mode    => '0744',
-    content => template('cloudwatch/talend/send_metrics.sh.erb')
-  }
-
-  cron { 'cloudwatch_metrics':
-    command => '/usr/local/bin/send_metrics',
-    user    => 'root',
-    minute  => '*/1',
-  }
-
+  contain (cloudwatch::install, cloudwatch::config)
+  Class['cloudwatch::install'] -> Class['cloudwatch::config']
 }
