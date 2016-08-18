@@ -17,52 +17,52 @@
 #
 # Copyright 2016 Talend, unless otherwise noted.
 #
-class cloudwatch-agent::install (
+class cloudwatch::install (
 
   $base_dir         = $cloudwatch::params::base_dir,
   $metrics_dir      = $cloudwatch::params::metrics_dir,
-  $bin_dir          = $cloudwatch::params::bin_dir,
-  $main_script_path = $cloudwatch::params::main_script_path
+  $main_script_path = $cloudwatch::params::main_script_path,
+  $user             = $cloudwatch::params::user
 ){
 
   validate_absolute_path($cloudwatch::params::base_dir)
 
   include awscli
 
+  # Creates a system user if required
+  user { "$user":
+    ensure  => 'present',
+    comment => 'User for CloudWatch Agent'
+  }
+
   # Directories used by the CloudWatch Agent
   $cloudwatch_agent_dirs = [
     "$base_dir",
-    "$metrics_dir",
-    "$bin_dir"
+    "$metrics_dir"
   ]
 
+  # Creates required directories
   file { $cloudwatch_agent_dirs:
     ensure => directory,
     mode   => '0755',
-    owner  => 'root',
+    owner  => "$user",
     group  => 'root',
   }
 
+  # Copy CloudWatch Agent main script
   file { "$main_script_path" :
     ensure  => 'present',
     mode    => '0744',
-    content => template('cloudwatch/talend/cloudwatch_agent.sh.erb')
+    source  => '../files/cloudwatch_agent.sh'
   }
 
-  cron { 'cloudwatch_agent':
-    command => "$main_script_path",
-    user    => 'root',
-    minute  => '*/1',
-  }
-
-  file { "/opt/talend/cloudwatch/metrics.d/${name}":
-    ensure  => 'present',
-    content => template($metric_executable),
+  # Copy metrics scripts
+  file { "$metrics_dir":
+    ensure  => 'directory',
+    source  => '../files/metric.d',
+    recurse => 'remote',
     mode    => '0744',
-    owner   => 'root',
+    owner   => "$user",
     group   => 'root',
-    require => File["$cloudwatch::params::metrics_path"],
   }
-
-
 }

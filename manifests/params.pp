@@ -4,7 +4,11 @@
 # Stores parameters for the cloudwatch module.
 #
 # Variables
-# ----------
+# ---------
+# * $base_dir         : Absolute path to the base directory where the CLoudWatch Agent is installed
+# * $metrics_dir      : Absolute path of the directory storing metric scripts
+# * $main_script_path : Absolute path of the CloudWatch Agent main script
+# * $user             : Name of the user which executes the CloudWatch Agent
 #
 # Authors
 # -------
@@ -18,8 +22,8 @@
 #
 class cloudwatch::params {
 
-  $base_dir         = '/opt/cloudwatch-agent'
+  $base_dir         = '/opt/cloudwatch-agent',
   $metrics_dir      = "$base_dir/metrics.d",
-  $bin_dir          = "$base_dir/bin",
-  $main_script_path = "$bin_dir/cloudwatch_agent.sh",
+  $main_script_path = "$base_dir/cloudwatch_agent.sh",
+  $user             = 'cloudwatch-agent'
 }
