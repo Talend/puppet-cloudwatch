@@ -29,8 +29,8 @@ class cloudwatch::config (
   $main_script_path = "$base_dir/$main_script_name"
 
   #Set the CloudWatch Agent main script in Cron
-  cron { 'cloudwatch_agent':
-    command => "$main_script_path",
+  cron { 'CloudWatch Agent':
+    command => "$base_dir/venv/bin/python $main_script_path",
     user    => "$user",
     minute  => '*/1',
     require => File["$main_script_path"]

@@ -29,4 +29,3 @@ mod 'puppetlabs-aws',
   :git => 'https://github.com/Talend/puppetlabs-aws.git',
   :ref => 'master'
 
-mod "stankevich-python", "1.14.0"

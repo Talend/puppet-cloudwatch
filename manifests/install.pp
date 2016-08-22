@@ -81,21 +81,19 @@ class cloudwatch::install (
     group   => "root"
   }
 
-  # Set a python virtual env
-  class { 'python' :
-    version    => 'system',
-    pip        => 'present',
-    virtualenv => 'present'
+  # Get Virtualenv, create one & get requirements
+  ensure_packages('virtualenv',
+                    { ensure => 'present',
+                      provider => 'pip'})
+
+  exec { 'Create virtualenv':
+    command => "virtualenv $base_dir/venv",
+    user    => $user,
+    require => Package[virtualenv]
   }
 
-  class { 'python::virtualenv' :
-    ensure       => present,
-    version      => 'system',
-    requirements => $pip_requirements,
-    systempkgs   => true,
-    distribute   => false,
-    venv_dir     => "$base_dir/venv",
-    owner        => $user,
-    group        => 'root'
+  exec { 'Install requirements':
+    command => "$base_dir/venv/bin/pip install -r $pip_requirements",
+    user    => $user
   }
 }
