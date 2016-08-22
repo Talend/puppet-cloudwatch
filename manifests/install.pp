@@ -88,7 +88,7 @@ class cloudwatch::install (
     virtualenv => 'present'
   }
 
-  python::virtualenv {
+  class { 'python::virtualenv' :
     ensure       => present,
     version      => 'system',
     requirements => $pip_requirements,
