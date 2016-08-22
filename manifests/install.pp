@@ -21,6 +21,7 @@ class cloudwatch::install (
 
   $base_dir         = $cloudwatch::params::base_dir,
   $metrics_dir      = $cloudwatch::params::metrics_dir,
+  $logs_path        = $cloudwatch::params::logs_path,
   $main_script_name = $cloudwatch::params::main_script_name,
   $user             = $cloudwatch::params::user
 ){
@@ -68,6 +69,14 @@ class cloudwatch::install (
     ensure  => 'present',
     mode    => '0744',
     source  => 'puppet:///modules/cloudwatch/cloudwatch_agent.py',
+    owner   => $user,
+    group   => "root"
+  }
+
+  # Bootstrap CloudWatch Agent logs
+  file { $logs_path :
+    ensure  => directory,
+    mode    => '0744',
     owner   => $user,
     group   => "root"
   }

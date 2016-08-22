@@ -14,10 +14,19 @@ Options:
 """
 
 from docopt import docopt
+import logging
+import logging.config
+import yaml
 
 
-def main(arguments):
-    print arguments
+def main(kwargs):
+
+    print("Loading configuration & initializing logging")
+    configuration = yaml.load("configuration.yaml")
+
+    logging.config.dictConfig(configuration['logging'])
+
+# --------------
 
 if __name__ == '__main__':
     arguments = docopt(__doc__)

@@ -1,0 +1,32 @@
+logging:
+
+  root:
+    level: logging.NOTSET
+    handlers: [logfile]
+
+  cloudwatch-agent:
+    level: logging.DEBUG
+    handlers: [logfile]
+    qualname: cloudwatch-agent
+
+  handlers:
+
+    logfile:
+      class: logging.RotatingFileHandler
+      filename: /var/log/cloudwatch-agent/cloudwatch-agent.log
+      formatter: simpleFormatter
+      level: logging.NOTSET
+      maxBytes: 4096
+      backupCount: 3
+
+    console:
+      class: logging.StreamHandler
+      stream: ext://sys.stdout
+      formatter: simpleFormatter
+      level: logging.NOTSET
+
+  formatters:
+
+    simpleFormatter:
+      class: logging.Formatter
+      format: '%(name)s %(asctime)s %(levelname)s %(message)s'

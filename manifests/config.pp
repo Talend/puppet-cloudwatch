@@ -5,7 +5,7 @@
 #
 # Variables
 # ----------
-# None - Variables are set on the cloudwatch::params class.
+# None - Variables should be set on the cloudwatch::params class.
 #
 # Authors
 # -------
@@ -30,9 +30,11 @@ class cloudwatch::config (
 
   #Set the CloudWatch Agent main script in Cron
   cron { 'CloudWatch Agent':
-    command => "$base_dir/venv/bin/python $main_script_path",
+    command => "$base_dir/venv/bin/python $main_script_path >/dev/null 2>&1",
     user    => "$user",
     minute  => '*/1',
     require => File["$main_script_path"]
   }
+
+  # TODO : extract configuration file from Hiera
 }
