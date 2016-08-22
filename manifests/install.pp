@@ -32,6 +32,12 @@ class cloudwatch::install (
   # Local variables
   $metrics_path     = "$base_dir/$metrics_dir"
   $main_script_path = "$base_dir/$main_script_name"
+  $pip_requirements = "$base_dir/requirements.txt"
+
+  # Set resource defaults
+  Exec {
+    path => '/usr/bon:/bin:/usr/sbin:/sbin'
+  }
 
   # Creates a system user if required
   user { $user :
@@ -44,29 +50,52 @@ class cloudwatch::install (
     ensure => directory,
     mode   => '0755',
     owner  => "$user",
-    group  => 'root',
+    group   => "root"
   }
 
   # Copy metrics scripts
-  notice("Install metrics : $metrics_path")
-
   file { $metrics_path :
     ensure  => directory,
     source  => 'puppet:///modules/cloudwatch/metrics.d',
     recurse => 'remote',
     mode    => '0744',
     owner   => $user,
-    group   => 'root',
+    group   => "root"
   }
 
   # Copy CloudWatch Agent main script
-  notice("Install main script : $main_script_path")
-
   file { $main_script_path :
     ensure  => 'present',
     mode    => '0744',
-    source  => 'puppet:///modules/cloudwatch/cloudwatch_agent.sh'
+    source  => 'puppet:///modules/cloudwatch/cloudwatch_agent.py',
+    owner   => $user,
+    group   => "root"
   }
 
+  # Get Python dependencies for cloudwatch-agent
+  file { $pip_requirements :
+    ensure  => 'present',
+    mode    => '0744',
+    source  => 'puppet:///modules/cloudwatch/requirements.txt',
+    owner   => $user,
+    group   => "root"
+  }
 
+  # Set a python virtual env
+  class { 'python' :
+    version    => 'system',
+    pip        => 'present',
+    virtualenv => 'present'
+  }
+
+  python::virtualenv {
+    ensure       => present,
+    version      => 'system',
+    requirements => $pip_requirements,
+    systempkgs   => true,
+    distribute   => false,
+    venv_dir     => "$base_dir/venv",
+    owner        => $user,
+    group        => 'root'
+  }
 }

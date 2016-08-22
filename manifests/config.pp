@@ -29,8 +29,6 @@ class cloudwatch::config (
   $main_script_path = "$base_dir/$main_script_name"
 
   #Set the CloudWatch Agent main script in Cron
-  notice("Set $main_script_path in Cron")
-
   cron { 'cloudwatch_agent':
     command => "$main_script_path",
     user    => "$user",

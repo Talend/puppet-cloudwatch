@@ -23,7 +23,7 @@
 class cloudwatch::params (
   $base_dir         = '/opt/cloudwatch-agent',
   $metrics_dir      = "metrics.d",
-  $main_script_name = "cloudwatch_agent.sh",
+  $main_script_name = "cloudwatch_agent.py",
   $user             = 'cloudwatch-agent'
 )
 {}
