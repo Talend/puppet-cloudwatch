@@ -21,7 +21,7 @@ class cloudwatch::install (
 
   $base_dir         = $cloudwatch::params::base_dir,
   $metrics_dir      = $cloudwatch::params::metrics_dir,
-  $main_script_path = $cloudwatch::params::main_script_path,
+  $main_script_name = $cloudwatch::params::main_script_name,
   $user             = $cloudwatch::params::user
 ){
 
@@ -29,40 +29,44 @@ class cloudwatch::install (
 
   include awscli
 
+  # Local variables
+  $metrics_path     = "$base_dir/$metrics_dir"
+  $main_script_path = "$base_dir/$main_script_name"
+
   # Creates a system user if required
-  user { "$user":
+  user { $user :
     ensure  => 'present',
     comment => 'User for CloudWatch Agent'
   }
 
-  # Directories used by the CloudWatch Agent
-  $cloudwatch_agent_dirs = [
-    "$base_dir",
-    "$metrics_dir"
-  ]
-
-  # Creates required directories
-  file { $cloudwatch_agent_dirs:
+  # Creates base directory
+  file { $base_dir :
     ensure => directory,
     mode   => '0755',
     owner  => "$user",
     group  => 'root',
   }
 
-  # Copy CloudWatch Agent main script
-  file { "$main_script_path" :
-    ensure  => 'present',
-    mode    => '0744',
-    source  => '../files/cloudwatch_agent.sh'
-  }
-
   # Copy metrics scripts
-  file { "$metrics_dir":
-    ensure  => 'directory',
-    source  => '../files/metric.d',
+  notice("Install metrics : $metrics_path")
+
+  file { $metrics_path :
+    ensure  => directory,
+    source  => 'puppet:///modules/cloudwatch/metrics.d',
     recurse => 'remote',
     mode    => '0744',
-    owner   => "$user",
+    owner   => $user,
     group   => 'root',
   }
+
+  # Copy CloudWatch Agent main script
+  notice("Install main script : $main_script_path")
+
+  file { $main_script_path :
+    ensure  => 'present',
+    mode    => '0744',
+    source  => 'puppet:///modules/cloudwatch/cloudwatch_agent.sh'
+  }
+
+
 }

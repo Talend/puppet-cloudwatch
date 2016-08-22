@@ -21,11 +21,16 @@ class cloudwatch::config (
 
   $base_dir         = $cloudwatch::params::base_dir,
   $metrics_dir      = $cloudwatch::params::metrics_dir,
-  $main_script_path = $cloudwatch::params::main_script_path,
+  $main_script_name = $cloudwatch::params::main_script_name,
   $user             = $cloudwatch::params::user
 ){
 
+  # Local variables
+  $main_script_path = "$base_dir/$main_script_name"
+
   #Set the CloudWatch Agent main script in Cron
+  notice("Set $main_script_path in Cron")
+
   cron { 'cloudwatch_agent':
     command => "$main_script_path",
     user    => "$user",
