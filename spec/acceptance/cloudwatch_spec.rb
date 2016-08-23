@@ -1,9 +1,11 @@
 require 'spec_helper'
 
+describe 'cloudwatch' do
+
   describe file('/opt/cloudwatch-agent/cloudwatch-agent.py') do
     it { should be_file }
     it { should be_mode 744 }
-    if { should be_owned_by 'cloudwatch-agent' }
+    it { should be_owned_by 'cloudwatch-agent' }
   end
 
   describe cron do

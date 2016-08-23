@@ -8,11 +8,13 @@ describe 'cloudwatch' do
 
     it {should compile}
 
-    it { should contain_class('cloudwatch') }
-    it { should contain_class('cloudwatch::install') }
-    it { should contain_class('cloudwatch::config') }
-    it { should contain_class('cloudwatch::params') }
-    it { should contain_class('awscli') }
+    it {
+        should contain_class('cloudwatch')
+        should contain_class('cloudwatch::params')
+        should contain_class('cloudwatch::install')
+        should contain_class('cloudwatch::config')
+        should contain_class('cloudwatch::params')
+    }
 
   end
 end

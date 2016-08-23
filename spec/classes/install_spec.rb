@@ -35,6 +35,7 @@ describe 'cloudwatch::install' do
             'ensure' => 'file',
             'owner'  => 'cloudwatch-agent',
         })
+    }
 
     it {should contain_file('/opt/cloudwatch-agent/configuration.yaml').with({
             'mode'   => '0744',

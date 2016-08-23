@@ -92,17 +92,19 @@ class cloudwatch::install (
 
   # Get Virtualenv, create one & get requirements
   ensure_packages('virtualenv',
-                    { ensure => 'present',
-                      provider => 'pip'})
+                    { ensure   => 'present',
+                      provider => 'pip',
+                      require  => Package['python-pip']})
 
   exec { 'Create virtualenv':
     command => "virtualenv ${base_dir}/venv",
     user    => $user,
-    require => Package[virtualenv]
+    require => Package['virtualenv']
   }
 
   exec { 'Install requirements':
     command => "${base_dir}/venv/bin/pip install -r ${pip_requirements}",
-    user    => $user
+    user    => $user,
+    require => Exec['Create virtualenv']
   }
 }
