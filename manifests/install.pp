@@ -27,6 +27,14 @@ class cloudwatch::install {
     comment => 'User for CloudWatch Agent'
   }
 
+  # Get Python dependencies for cloudwatch-agent
+  file { $pip_requirements :
+    ensure => 'present',
+    mode   => '0744',
+    source => 'puppet:///modules/cloudwatch/requirements.txt',
+    owner  => $cloudwatch::user,
+  }
+
   # Manage Third Party tools
   class { 'python':
     version    => 'system',
@@ -37,7 +45,7 @@ class cloudwatch::install {
   -> class { 'awscli': }
 
   # Set a dedicated virtual env with requirements
-  python::virtualenv { "${cloudwatch::base_dir}/venv" :
+  class { 'python::virtualenv':
     ensure       => present,
     version      => 'system',
     requirements => $pip_requirements,
@@ -54,8 +62,6 @@ class cloudwatch::install {
   Exec {
     path => '/usr/bon:/bin:/usr/sbin:/sbin'
   }
-
-
 
   # Creates base directory
   file { $cloudwatch::base_dir :
@@ -85,14 +91,6 @@ class cloudwatch::install {
   file { $cloudwatch::logs_path :
     ensure => directory,
     mode   => '0744',
-    owner  => $cloudwatch::user,
-  }
-
-  # Get Python dependencies for cloudwatch-agent
-  file { $pip_requirements :
-    ensure => 'present',
-    mode   => '0744',
-    source => 'puppet:///modules/cloudwatch/requirements.txt',
     owner  => $cloudwatch::user,
   }
 }
