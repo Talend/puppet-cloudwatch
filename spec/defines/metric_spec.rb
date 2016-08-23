@@ -7,11 +7,11 @@ describe 'cloudwatch::metric' do
 
   context 'metric with default values for all parameters' do
 
-    let(:params) {{ :metric_executable => 'cloudwatch/talend/example_sript.sh.erb'}}
+    let(:params) {{ :metric_executable => 'cloudwatch/metrics.d/example_script.sh'}}
 
-    it {should compile}
+    it { should compile }
     it { should contain_class('cloudwatch') }
-    it {should contain_file('/opt/talend/cloudwatch/metrics.d/default').with_mode('0744') }
+    it { should contain_file('/opt/cloudwatch-agent/metrics.d/default').with_mode('0744') }
 
   end
 
@@ -20,15 +20,15 @@ describe 'cloudwatch::metric' do
   end
 
   context 'metric with enabled alarm' do
-    let(:params) {{ :metric_executable => 'cloudwatch/talend/example_sript.sh.erb',
+    let(:params) {{ :metric_executable => 'cloudwatch/metrics.d/example_script.sh',
                     :alarm_enable      => true
 
     }}
 
-    it {should compile}
+    it { should compile }
     it { should contain_class('cloudwatch') }
     it { should contain_cloudwatch_alarm('default') }
-    it {should contain_file('/opt/talend/cloudwatch/metrics.d/default').with_mode('0744') }
+    it { should contain_file('/opt/cloudwatch-agent/metrics.d/default').with_mode('0744') }
 
   end
 end

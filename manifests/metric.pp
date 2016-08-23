@@ -56,13 +56,13 @@ define cloudwatch::metric (
 
   include cloudwatch
 
-  file { "/opt/talend/cloudwatch/metrics.d/${name}":
+  file { "/opt/cloudwatch-agent/metrics.d/${name}":
     ensure  => 'present',
     content => template($metric_executable),
     mode    => '0744',
     owner   => 'root',
     group   => 'root',
-    require => File['/opt/talend/cloudwatch/metrics.d'],
+    require => File['/opt/cloudwatch-agent/metrics.d'],
   }
 
   if $alarm_enable {
