@@ -5,7 +5,7 @@
 #
 # Variables
 # ----------
-# None - Variables are set on the cloudwatch::params class.
+# None
 #
 # Authors
 # -------
@@ -17,23 +17,16 @@
 #
 # Copyright 2016 Talend, unless otherwise noted.
 #
-class cloudwatch::install (
+class cloudwatch::install {
 
-  $base_dir         = $cloudwatch::params::base_dir,
-  $metrics_dir      = $cloudwatch::params::metrics_dir,
-  $logs_path        = $cloudwatch::params::logs_path,
-  $main_script_name = $cloudwatch::params::main_script_name,
-  $user             = $cloudwatch::params::user
-){
-
-  validate_absolute_path($cloudwatch::params::base_dir)
+  validate_absolute_path($cloudwatch::base_dir)
 
   include awscli
 
   # Local variables
-  $metrics_path     = "${base_dir}/${metrics_dir}"
-  $main_script_path = "${base_dir}/${main_script_name}"
-  $pip_requirements = "${base_dir}/requirements.txt"
+  $metrics_path     = "${cloudwatch::base_dir}/${cloudwatch::metrics_dir}"
+  $main_script_path = "${cloudwatch::base_dir}/${cloudwatch::main_script_name}"
+  $pip_requirements = "${cloudwatch::base_dir}/requirements.txt"
 
   # Set resource defaults
   Exec {
@@ -41,16 +34,16 @@ class cloudwatch::install (
   }
 
   # Creates a system user if required
-  user { $user :
+  user { $cloudwatch::user :
     ensure  => 'present',
     comment => 'User for CloudWatch Agent'
   }
 
   # Creates base directory
-  file { $base_dir :
+  file { $cloudwatch::base_dir :
     ensure => directory,
     mode   => '0755',
-    owner  => $user,
+    owner  => $cloudwatch::user,
     group  => 'root'
   }
 
@@ -60,7 +53,7 @@ class cloudwatch::install (
     source  => 'puppet:///modules/cloudwatch/metrics.d',
     recurse => 'remote',
     mode    => '0744',
-    owner   => $user,
+    owner   => $cloudwatch::user,
     group   => 'root'
   }
 
@@ -69,15 +62,15 @@ class cloudwatch::install (
     ensure => 'present',
     mode   => '0744',
     source => 'puppet:///modules/cloudwatch/cloudwatch_agent.py',
-    owner  => $user,
+    owner  => $cloudwatch::user,
     group  => 'root'
   }
 
   # Bootstrap CloudWatch Agent logs
-  file { $logs_path :
+  file { $cloudwatch::logs_path :
     ensure => directory,
     mode   => '0744',
-    owner  => $user,
+    owner  => $cloudwatch::user,
     group  => 'root'
   }
 
@@ -86,25 +79,25 @@ class cloudwatch::install (
     ensure => 'present',
     mode   => '0744',
     source => 'puppet:///modules/cloudwatch/requirements.txt',
-    owner  => $user,
+    owner  => $cloudwatch::user,
     group  => 'root'
   }
 
-  # Get Virtualenv, create one & get requirements
+  # Get Virtualenv, create one & install requirements
   ensure_packages('virtualenv',
                     { ensure   => 'present',
                       provider => 'pip',
                       require  => Package['python-pip']})
 
   exec { 'Create virtualenv':
-    command => "virtualenv ${base_dir}/venv",
-    user    => $user,
+    command => "virtualenv ${cloudwatch::base_dir}/venv",
+    user    => $cloudwatch::user,
     require => Package['virtualenv']
   }
 
   exec { 'Install requirements':
-    command => "${base_dir}/venv/bin/pip install -r ${pip_requirements}",
-    user    => $user,
+    command => "${cloudwatch::base_dir}/venv/bin/pip install -r ${pip_requirements}",
+    user    => $cloudwatch::user,
     require => Exec['Create virtualenv']
   }
 }

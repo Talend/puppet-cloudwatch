@@ -29,3 +29,5 @@ mod 'puppetlabs-aws',
   :git => 'https://github.com/Talend/puppetlabs-aws.git',
   :ref => 'master'
 
+mod 'puppet-python',
+  :git => 'https://github.com/jleloup/puppet-python.git'
