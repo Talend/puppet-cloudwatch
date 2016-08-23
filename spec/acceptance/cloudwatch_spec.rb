@@ -1,19 +1,12 @@
 require 'spec_helper'
 
-describe 'cloudwatch' do
-  describe file('/opt/talend/cloudwatch/metrics.d/DiskPercentage') do
+  describe file('/opt/cloudwatch-agent/cloudwatch-agent.py') do
     it { should be_file }
     it { should be_mode 744 }
-    its(:content) { should match /Disk_Metric/ }
-  end
-
-  describe file('/usr/local/bin/send_metrics') do
-    it { should be_file }
-    it { should be_mode 744 }
-    its(:content) { should match /METRICS_PATH/ }
+    if { should be_owned_by 'cloudwatch-agent' }
   end
 
   describe cron do
-    it { should have_entry '*/1 * * * * /usr/local/bin/send_metrics' }
+    it { should have_entry('*/1 * * * * /opt/cloudwatch-agent/venv/bin/python /opt/cloudwatch-agent/cloudwatch-agent.py >/dev/null 2>&1').with_user('cloudwatch-agent') }
   end
 end
