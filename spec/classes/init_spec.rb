@@ -9,18 +9,21 @@ describe 'cloudwatch' do
     it {should compile}
 
     it {
-        should contain_class('cloudwatch')
-        should contain_class('cloudwatch::params')
-        should contain_class('cloudwatch::install')
-        should contain_class('cloudwatch::config')
-        should contain_class('cloudwatch::params')
+      should contain_class('cloudwatch')
+      should contain_class('cloudwatch::params')
+      should contain_class('cloudwatch::install')
+      should contain_class('cloudwatch::config')
+      should contain_class('cloudwatch::params')
     }
 
     #######################
     # Test : installation #
     #######################
 
-    it { should contain_class('awscli') }
+    it {
+      should contain_class('awscli')
+      should contain_class('python')
+    }
 
     it {should contain_file('/opt/cloudwatch-agent/metrics.d').with({
             'mode'   => '0744',
@@ -30,7 +33,6 @@ describe 'cloudwatch' do
     }
 
     it {should contain_file('/opt/cloudwatch-agent/venv').with({
-            'mode'   => '0744',
             'ensure' => 'directory',
             'owner'  => 'cloudwatch-agent',
         })

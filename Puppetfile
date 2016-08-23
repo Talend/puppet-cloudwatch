@@ -30,4 +30,5 @@ mod 'puppetlabs-aws',
   :ref => 'master'
 
 mod 'puppet-python',
-  :git => 'https://github.com/jleloup/puppet-python.git'
+  :git => 'https://github.com/mpdude/puppet-python.git',
+  :ref => 'rename-pip-package'

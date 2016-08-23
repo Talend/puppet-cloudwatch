@@ -18,8 +18,18 @@ GIT
   specs:
     puppetlabs-aws (1.4.0)
 
+GIT
+  remote: https://github.com/mpdude/puppet-python.git
+  ref: rename-pip-package
+  sha: 9e8f68ba74d9b87a25f4d6578aa21ef0ccd3e884
+  specs:
+    puppet-python (1.12.0)
+      puppetlabs-stdlib (< 6.0.0, >= 4.6.0)
+      stahnma-epel (< 2.0.0, >= 1.0.1)
+
 DEPENDENCIES
   jdowning-awscli (~> 1.0)
+  puppet-python (>= 0)
   puppetlabs-aws (>= 0)
   puppetlabs-concat (~> 1.0)
   puppetlabs-stdlib (< 5.0.0, >= 1.0.0)
