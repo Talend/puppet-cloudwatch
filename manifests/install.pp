@@ -19,6 +19,19 @@
 #
 class cloudwatch::install {
 
+  ###################
+  # Local Variables #
+  ###################
+
+  $metrics_path       = "${cloudwatch::base_dir}/${cloudwatch::metrics_dir}"
+  $main_script_path   = "${cloudwatch::base_dir}/${cloudwatch::main_script_name}"
+  $configuration_path = "${cloudwatch::base_dir}/configuration.yaml"
+  $pip_requirements   = "${cloudwatch::base_dir}/requirements.txt"
+
+  ############################
+  # Install system resources #
+  ############################
+
   validate_absolute_path($cloudwatch::base_dir)
 
   # Creates a system user if required
@@ -37,31 +50,25 @@ class cloudwatch::install {
 
   # Manage Third Party tools
   class { 'python':
-    version    => 'system',
-    pip        => 'present',
-    virtualenv => 'present',
-    dev        => 'present'
+    version    => system,
+    pip        => present,
+    virtualenv => present,
+    dev        => present
   }
   -> class { 'awscli': }
 
   # Set a dedicated virtual env with requirements
-  class { 'python::virtualenv':
+  python::virtualenv { "${cloudwatch::base_dir}/venv":
     ensure       => present,
-    version      => 'system',
+    version      => system,
     requirements => $pip_requirements,
     venv_dir     => "${cloudwatch::base_dir}/venv",
     owner        => $cloudwatch::user,
   }
 
-  # Local variables
-  $metrics_path     = "${cloudwatch::base_dir}/${cloudwatch::metrics_dir}"
-  $main_script_path = "${cloudwatch::base_dir}/${cloudwatch::main_script_name}"
-  $pip_requirements = "${cloudwatch::base_dir}/requirements.txt"
-
-  # Set resource defaults
-  Exec {
-    path => '/usr/bon:/bin:/usr/sbin:/sbin'
-  }
+  ###############################
+  # Copy CloudWatch-Agent files #
+  ###############################
 
   # Creates base directory
   file { $cloudwatch::base_dir :
@@ -74,16 +81,24 @@ class cloudwatch::install {
   file { $metrics_path :
     ensure  => directory,
     source  => 'puppet:///modules/cloudwatch/metrics.d',
-    recurse => 'remote',
+    recurse => remote,
     mode    => '0744',
     owner   => $cloudwatch::user,
   }
 
   # Copy CloudWatch Agent main script
   file { $main_script_path :
-    ensure => 'present',
+    ensure => file,
     mode   => '0744',
-    source => 'puppet:///modules/cloudwatch/cloudwatch_agent.py',
+    source => "puppet:///modules/cloudwatch/${cloudwatch::main_script_name}",
+    owner  => $cloudwatch::user,
+  }
+
+  # Copy configuration file template
+  file { $configuration_path :
+    ensure => file,
+    mode   => '0744',
+    source => 'puppet:///modules/cloudwatch/configuration.yaml',
     owner  => $cloudwatch::user,
   }
 
