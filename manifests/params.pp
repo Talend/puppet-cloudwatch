@@ -23,9 +23,9 @@
 #
 class cloudwatch::params (
   $base_dir         = '/opt/cloudwatch-agent',
-  $metrics_dir      = "metrics.d",
+  $metrics_dir      = 'metrics.d',
   $logs_path        = '/var/log/cloudwatch-agent',
-  $main_script_name = "cloudwatch_agent.py",
+  $main_script_name = 'cloudwatch_agent.py',
   $user             = 'cloudwatch-agent'
 )
 {}
