@@ -64,7 +64,8 @@ describe 'cloudwatch' do
     ########################
 
     it { should contain_cron('CloudWatch Agent').with({
-            'command' => '/opt/cloudwatch-agent/venv/bin/python /opt/cloudwatch-agent/cloudwatch-agent.py >/dev/null 2>&1',
+            'command' => '/opt/cloudwatch-agent/venv/bin/python /opt/cloudwatch-agent/cloudwatch-agent.py '\
+                         '-c /opt/cloudwatch-agent/configuration.yaml >/dev/null 2>&1',
             'user'    => 'cloudwatch-agent',
             'minute'  => '*/1',
         })

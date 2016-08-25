@@ -20,11 +20,12 @@
 class cloudwatch::config {
 
   # Local variables
-  $main_script_path = "${cloudwatch::base_dir}/${cloudwatch::main_script_name}"
+  $main_script_path   = "${cloudwatch::base_dir}/${cloudwatch::main_script_name}"
+  $configuration_path = "${cloudwatch::base_dir}/${cloudwatch::configuration_name}"
 
   #Set the CloudWatch Agent main script in Cron
   cron { 'CloudWatch Agent':
-    command => "${cloudwatch::base_dir}/venv/bin/python ${main_script_path} >/dev/null 2>&1",
+    command => "${cloudwatch::base_dir}/venv/bin/python ${main_script_path} -c ${configuration_path} >/dev/null 2>&1",
     user    => $cloudwatch::user,
     minute  => '*/1',
     require => File[$main_script_path]
