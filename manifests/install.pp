@@ -28,6 +28,16 @@ class cloudwatch::install {
   $configuration_path = "${cloudwatch::base_dir}/configuration.yaml"
   $pip_requirements   = "${cloudwatch::base_dir}/requirements.txt"
 
+  ############
+  # Defaults #
+  ############
+
+  File {
+    owner  => $cloudwatch::user,
+    group  => $cloudwatch::user,
+    mode   => '0744'
+  }
+
   ############################
   # Install system resources #
   ############################
@@ -43,9 +53,7 @@ class cloudwatch::install {
   # Get Python dependencies for cloudwatch-agent
   file { $pip_requirements :
     ensure => 'present',
-    mode   => '0744',
     source => 'puppet:///modules/cloudwatch/requirements.txt',
-    owner  => $cloudwatch::user,
   }
 
   # Manage Third Party tools
@@ -64,6 +72,7 @@ class cloudwatch::install {
     requirements => $pip_requirements,
     venv_dir     => "${cloudwatch::base_dir}/venv",
     owner        => $cloudwatch::user,
+    group        => $cloudwatch::user
   }
 
   ###############################
@@ -74,7 +83,6 @@ class cloudwatch::install {
   file { $cloudwatch::base_dir :
     ensure => directory,
     mode   => '0755',
-    owner  => $cloudwatch::user,
   }
 
   # Copy metrics scripts
@@ -82,30 +90,22 @@ class cloudwatch::install {
     ensure  => directory,
     source  => 'puppet:///modules/cloudwatch/metrics.d',
     recurse => remote,
-    mode    => '0744',
-    owner   => $cloudwatch::user,
   }
 
   # Copy CloudWatch Agent main script
   file { $main_script_path :
     ensure => file,
-    mode   => '0744',
     source => "puppet:///modules/cloudwatch/${cloudwatch::main_script_name}",
-    owner  => $cloudwatch::user,
   }
 
   # Copy configuration file template
   file { $configuration_path :
     ensure => file,
-    mode   => '0744',
     source => 'puppet:///modules/cloudwatch/configuration.yaml',
-    owner  => $cloudwatch::user,
   }
 
   # Bootstrap CloudWatch Agent logs
   file { $cloudwatch::logs_path :
-    ensure => directory,
-    mode   => '0744',
-    owner  => $cloudwatch::user,
+    ensure => directory
   }
 }
