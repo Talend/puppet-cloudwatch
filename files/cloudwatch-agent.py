@@ -64,4 +64,4 @@ if __name__ == '__main__':
         logging.config.dictConfig(configuration["logging"])
         logger = logging.getLogger("cloudwatch-agent")
 
-        main(arguments, configuration)
+        main(arguments)
