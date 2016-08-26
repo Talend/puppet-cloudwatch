@@ -88,11 +88,11 @@ def main(kwargs):
         metric_name = metric['name'].lower()
 
         for script in available_scripts:
+
             if script.lower().split('.')[0] == metric_name:
+
                 found = True
-                script_to_run.append('{0}/{1} {2}'.format(metrics_path,
-                                                          script,
-                                                          metric['params']))
+                script_to_run.append(["{0}/{1}".format(metrics_path, script) , metric['params']])
                 break;
 
         if not found:
@@ -106,13 +106,13 @@ def main(kwargs):
         sys.exit(1)
 
     for script in script_to_run:
-        try:
-            output = subprocess.check_output([script], stderr=subprocess.STDOUT)
+            process = subprocess.Popen(script, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
 
-            logger.debug("Script %s output : %s", script, output)
-
-        except subprocess.CalledProcessError as e:
-            logger.error("Script %s failed : %s", script, e)
+            if process.returncode != 0:
+                logger.error("Script %s failed (return code %s) : %s", script, process.returncode, stderr)
+            else:
+                logger.debug("Script %s output : %s", script, stdout)
 
 
 if __name__ == '__main__':
