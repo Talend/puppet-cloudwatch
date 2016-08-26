@@ -15,8 +15,10 @@ Options:
 """
 
 from docopt import docopt
-import logging
 import logging.config
+import os
+import subprocess
+import sys
 import yaml
 
 # ---------
@@ -25,8 +27,24 @@ import yaml
 
 
 def print_steps(func, level=logging.INFO):
+    """
+    Used as a decorator to print a log message using the logger at the beginning & the end of execution of the decorated
+    function.
+
+    :param func:  the decorated function
+    :param level: Level of the log message. Default : logging.INFO
+    :type  func:  Object (a function)
+    :type  level: Integer (using 'logging' constants for log levels)
+    :return:      Inner function 'log_steps'.
+    """
 
     def log_steps(*args, **kwargs):
+        """
+        Inner function to print the log messages
+        :param args:   args from the decorator to give to the decorated function
+        :param kwargs: kwargs from the decorator to give to the decorated function
+        :return:       None
+        """
         logger.log(level, "BEGIN - {0}".format(func.__name__))
         func(*args, **kwargs)
         logger.log(level, "END - {0}".format(func.__name__))
@@ -36,32 +54,78 @@ def print_steps(func, level=logging.INFO):
 
 @print_steps
 def main(kwargs):
+    """
+    Main function.
+    :param kwargs: Arguments given by docopt.
+    :return:       None
+    """
 
-    # Match configuration with found scripts
-    # -> error log for every missing script
-    # -> execute all found scripts
-    logger.info("Get metric configuration")
+    # Get the list of requested metrics for this instance
+    logger.info('Get metric configuration')
 
-    metrics = configuration["metrics"]
-
+    metrics = configuration['metrics']
     logger.debug("Configured metrics : {0}".format(metrics))
 
-    # Use multiprocess to run scripts
-    # -> error log for failing scripts
-    # -> store values for all successful scripts
+    # Get the list of available scripts (without any file extension)
+    logger.info('Get available scripts')
 
-    # Loop results to push them to CloudWatch using Boto
+    metrics_path = "{0}/metrics.d".format(os.path.dirname(os.path.realpath(__file__)))
+    available_scripts = [f
+                         for f
+                         in os.listdir(metrics_path)
+                         if os.path.isfile(os.path.join(metrics_path, f))]
 
+    logger.debug("Found scripts : {0}".format(available_scripts))
 
-# ---------
+    # Match requested metric scripts and available ones
+    # Notes :
+    #   * matches are made in lower cases to have case insensitive behaviour
+    #   * File extension is not taken in account for matching names
+    script_to_run = []
+    for metric in metrics:
+
+        found = False
+        metric_name = metric['name'].lower()
+
+        for script in available_scripts:
+            if script.lower().split('.')[0] == metric_name:
+                found = True
+                script_to_run.append('{0}/{1} {2}'.format(metrics_path,
+                                                          script,
+                                                          metric['params']))
+                break;
+
+        if not found:
+            logger.error("Requested metric script %s was not found in %s", metric['name'], metrics_path)
+
+    logger.debug("Metric script scheduled to run : %s", script_to_run)
+
+    # Run found scripts
+    if not script_to_run:
+        logger.critical("No metric script to run !")
+        sys.exit(1)
+
+    for script in script_to_run:
+        try:
+            output = subprocess.check_output([script], stderr=subprocess.STDOUT)
+
+            logger.debug("Script %s output : %s", script, output)
+
+        except subprocess.CalledProcessError as e:
+            logger.error("Script %s failed : %s", script, e)
+
 
 if __name__ == '__main__':
     arguments = docopt(__doc__)
 
-    with open(arguments["--config"]) as f:
+    with open(arguments['--config']) as f:
         configuration = yaml.load(f)
 
-        logging.config.dictConfig(configuration["logging"])
-        logger = logging.getLogger("cloudwatch-agent")
+        logging.config.dictConfig(configuration['logging'])
+
+        if arguments['--debug']:
+            logger = logging.getLogger('cloudwatch-agent-cli')
+        else:
+            logger = logging.getLogger('cloudwatch-agent')
 
         main(arguments)
