@@ -48,8 +48,9 @@ def print_steps(func, level=logging.INFO):
         :return:       None
         """
         logger.log(level, "BEGIN - {0}".format(func.__name__))
-        func(*args, **kwargs)
+        output = func(*args, **kwargs)
         logger.log(level, "END - {0}".format(func.__name__))
+        return output
 
     return log_steps
 
@@ -68,7 +69,7 @@ def run_metric_scripts(metrics_path, metrics, scripts):
     :return:             A list of metric data to push in CloudWatch (Dict format for Boto)
     """
 
-    cloudwatch_request = []
+    metrics_values = []
     for metric in metrics:
 
         found = False
@@ -92,7 +93,7 @@ def run_metric_scripts(metrics_path, metrics, scripts):
                     metric['value'] = stdout
 
                     # Metric results to be pushed later on
-                    cloudwatch_request.append({
+                    metrics_values.append({
                         'MetricName': metric['name'],
                         'Value': float(metric['value']),
                         'Unit': metric['unit']
@@ -103,7 +104,7 @@ def run_metric_scripts(metrics_path, metrics, scripts):
         if not found:
             logger.error("Requested metric script %s was not found in %s", metric['name'], metrics_path)
 
-    return cloudwatch_request
+    return metrics_values
 
 
 @print_steps
@@ -127,6 +128,8 @@ def push_cloudwatch(request):
     """
 
     if request:
+        logger.debug("Metrics values to push : %s", request)
+
         try:
             cloudwatch = boto3.client('cloudwatch')
             cloudwatch.put_metric_data(Namespace=configuration['namespace'],
@@ -134,6 +137,8 @@ def push_cloudwatch(request):
 
         except botocore.exceptions.BotoCoreError as e:
             logger.critical(e)
+    else:
+        logger.error('No metrics data to send !')
 
 
 @print_steps

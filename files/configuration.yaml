@@ -1,18 +1,20 @@
 logging:
   version: 1
-  root:
-    level: NOTSET
-    handlers: [logfile]
 
-  cloudwatch-agent:
-    level: INFO
-    handlers: [logfile]
-    qualname: cloudwatch-agent
+  loggers:
+    root:
+      level: INFO
+      handlers: [logfile]
 
-  cloudwatch-agent-cli:
-    level: DEBUG
-    handlers: [logfile, console]
-    qualname: cloudwatch-agent-cli
+    cloudwatch-agent:
+      level: INFO
+      handlers: [logfile]
+      qualname: cloudwatch-agent
+
+    cloudwatch-agent-cli:
+      level: DEBUG
+      handlers: [logfile, console]
+      qualname: cloudwatch-agent-cli
 
   handlers:
 
@@ -21,7 +23,7 @@ logging:
       filename: /var/log/cloudwatch-agent/cloudwatch-agent.log
       formatter: simpleFormatter
       level: NOTSET
-      maxBytes: 4096
+      maxBytes: 4194304 # 4MB max
       backupCount: 3
 
     console:
