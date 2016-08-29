@@ -14,12 +14,13 @@ Options:
 
 """
 
+from boto import utils
+import botocore
 import boto3
 from docopt import docopt
 import logging.config
 import os
 import subprocess
-import sys
 import yaml
 
 # ---------
@@ -105,7 +106,7 @@ def main(kwargs):
                     # Metric results to be pushed later on
                     cloudwatch_request.append({
                         'MetricName': metric['name'],
-                        'Value': metric['value'],
+                        'Value': float(metric['value']),
                         'Unit': metric['unit']
                     })
 
@@ -114,19 +115,27 @@ def main(kwargs):
         if not found:
             logger.error("Requested metric script %s was not found in %s", metric['name'], metrics_path)
 
+    # Set AWS default region (AZ is available in metadata, just remove last character)
+    aws_region = utils.get_instance_metadata(data='meta-data/placement/')['availability-zone'][:-1]
+    logger.debug("AWS Region : %s", aws_region)
+
+    os.environ["AWS_DEFAULT_REGION"] = aws_region
+
     # Push metrics to CloudWatch
     if cloudwatch_request:
-        cloudwatch = boto3.client('cloudwatch')
-        cloudwatch.put_metric_data(Namespace=configuration['namespace'],
-                                   MetricData=cloudwatch_request)
+
+        try:
+            cloudwatch = boto3.client('cloudwatch')
+            cloudwatch.put_metric_data(Namespace=configuration['namespace'],
+                                       MetricData=cloudwatch_request)
+
+        except botocore.exceptions.BotoCoreError as e:
+            logger.critical(e)
 
     # Statistics
-    logger.info("CloudWatch agent statistics : %s/%s/%s"
-                "(Requested metrics / Executed metrics / Metrics pushed to CloudWatch)",
-                len(metrics),
-                len([m for m in metrics if m['value']]),
-                len([m for m in metrics if m['cloudwatch']]),
-                len(cloudwatch_request))
+    logger.info("CloudWatch agent statistics : %s/%s (Executed metrics / Requested metrics)",
+                len([m for m in metrics if hasattr(m, 'value')]),
+                len(metrics))
 
 
 if __name__ == '__main__':
