@@ -55,38 +55,26 @@ def print_steps(func, level=logging.INFO):
 
 
 @print_steps
-def main(kwargs):
+def run_metric_scripts(metrics_path, metrics, scripts):
     """
-    Main function.
-    :param kwargs: Arguments given by docopt.
-    :return:       None
+    Match requested metric scripts and available ones
+    Notes :
+      * matches are made in lower cases to have case insensitive behaviour
+      * File extension is not taken in account for matching names
+
+    :param metrics_path: Absolute path to the place where scripts are stored
+    :param metrics:      List of metrics (in dicts) required
+    :param scripts:      List of scripts found
+    :return:             A list of metric data to push in CloudWatch (Dict format for Boto)
     """
 
-    # Get the list of requested metrics for this instance
-    logger.info('Get metric configuration')
-
-    metrics = configuration['metrics']
-    logger.debug("Configured metrics : {0}".format(metrics))
-
-    # Get the list of available scripts (without any file extension)
-    logger.info('Get available scripts')
-
-    metrics_path = "{0}/metrics.d".format(os.path.dirname(os.path.realpath(__file__)))
-    available_scripts = [f for f in os.listdir(metrics_path) if os.path.isfile(os.path.join(metrics_path, f))]
-
-    logger.debug("Found scripts : {0}".format(available_scripts))
-
-    # Match requested metric scripts and available ones
-    # Notes :
-    #   * matches are made in lower cases to have case insensitive behaviour
-    #   * File extension is not taken in account for matching names
     cloudwatch_request = []
     for metric in metrics:
 
         found = False
         metric_name = metric['name'].lower()
 
-        for script in available_scripts:
+        for script in scripts:
 
             # Run command if the script is found for the requested metric
             if script.lower().split('.')[0] == metric_name:
@@ -115,22 +103,65 @@ def main(kwargs):
         if not found:
             logger.error("Requested metric script %s was not found in %s", metric['name'], metrics_path)
 
-    # Set AWS default region (AZ is available in metadata, just remove last character)
+    return cloudwatch_request
+
+
+@print_steps
+def set_aws_region():
+    """
+    Set an environment variable AWS_DEFAULT_REGION with the name of the AWS Region got from instance metadata.
+    :return: None
+    """
     aws_region = utils.get_instance_metadata(data='meta-data/placement/')['availability-zone'][:-1]
     logger.debug("AWS Region : %s", aws_region)
 
     os.environ["AWS_DEFAULT_REGION"] = aws_region
 
-    # Push metrics to CloudWatch
-    if cloudwatch_request:
 
+@print_steps
+def push_cloudwatch(request):
+    """
+    Push a list of metrics data in CloudWatch using Boto3.
+    :param request:
+    :return:
+    """
+
+    if request:
         try:
             cloudwatch = boto3.client('cloudwatch')
             cloudwatch.put_metric_data(Namespace=configuration['namespace'],
-                                       MetricData=cloudwatch_request)
+                                       MetricData=request)
 
         except botocore.exceptions.BotoCoreError as e:
             logger.critical(e)
+
+
+@print_steps
+def main(kwargs):
+    """
+    Main function.
+    :param kwargs: Arguments given by docopt.
+    :return:       None
+    """
+
+    # Get the list of requested metrics for this instance
+    logger.info('Get metric configuration')
+
+    metrics = configuration['metrics']
+    logger.debug("Configured metrics : {0}".format(metrics))
+
+    # Get the list of available scripts (without any file extension)
+    logger.info('Get available scripts')
+
+    metrics_path = "{0}/metrics.d".format(os.path.dirname(os.path.realpath(__file__)))
+    available_scripts = [f for f in os.listdir(metrics_path) if os.path.isfile(os.path.join(metrics_path, f))]
+
+    logger.debug("Found scripts : {0}".format(available_scripts))
+
+    # Execute all matches
+    cloudwatch_request = run_metric_scripts(metrics_path, metrics, available_scripts)
+    set_aws_region()
+    push_cloudwatch(cloudwatch_request)
 
     # Statistics
     logger.info("CloudWatch agent statistics : %s/%s (Executed metrics / Requested metrics)",

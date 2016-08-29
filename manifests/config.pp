@@ -25,10 +25,11 @@ class cloudwatch::config {
 
   #Set the CloudWatch Agent main script in Cron
   cron { 'CloudWatch Agent':
-    command => "${cloudwatch::base_dir}/venv/bin/python ${main_script_path} -c ${configuration_path} >/dev/null 2>&1",
-    user    => $cloudwatch::user,
-    minute  => '*/1',
-    require => File[$main_script_path]
+    command     => "${cloudwatch::base_dir}/venv/bin/python ${main_script_path} -c ${configuration_path} >/dev/null 2>&1",
+    user        => $cloudwatch::user,
+    minute      => '*/1',
+    environment => 'HOME=/tmp',
+    require     => File[$main_script_path]
   }
 
   # TODO : extract configuration file from Hiera
