@@ -14,6 +14,7 @@ Options:
 
 """
 
+import boto3
 from docopt import docopt
 import logging.config
 import os
@@ -70,10 +71,7 @@ def main(kwargs):
     logger.info('Get available scripts')
 
     metrics_path = "{0}/metrics.d".format(os.path.dirname(os.path.realpath(__file__)))
-    available_scripts = [f
-                         for f
-                         in os.listdir(metrics_path)
-                         if os.path.isfile(os.path.join(metrics_path, f))]
+    available_scripts = [f for f in os.listdir(metrics_path) if os.path.isfile(os.path.join(metrics_path, f))]
 
     logger.debug("Found scripts : {0}".format(available_scripts))
 
@@ -81,7 +79,7 @@ def main(kwargs):
     # Notes :
     #   * matches are made in lower cases to have case insensitive behaviour
     #   * File extension is not taken in account for matching names
-    script_to_run = []
+    cloudwatch_request = []
     for metric in metrics:
 
         found = False
@@ -89,30 +87,46 @@ def main(kwargs):
 
         for script in available_scripts:
 
+            # Run command if the script is found for the requested metric
             if script.lower().split('.')[0] == metric_name:
 
                 found = True
-                script_to_run.append(["{0}/{1}".format(metrics_path, script) , metric['params']])
-                break;
+                script = ["{0}/{1}".format(metrics_path, script), metric['params']]
+
+                process = subprocess.Popen(script, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
+
+                if process.returncode != 0:
+                    logger.error("Script %s failed (return code %s) : %s", script, process.returncode, stderr)
+                else:
+                    logger.debug("Script %s output : %s", script, stdout)
+                    metric['value'] = stdout
+
+                    # Metric results to be pushed later on
+                    cloudwatch_request.append({
+                        'MetricName': metric['name'],
+                        'Value': metric['value'],
+                        'Unit': metric['unit']
+                    })
+
+                break
 
         if not found:
             logger.error("Requested metric script %s was not found in %s", metric['name'], metrics_path)
 
-    logger.debug("Metric script scheduled to run : %s", script_to_run)
+    # Push metrics to CloudWatch
+    if cloudwatch_request:
+        cloudwatch = boto3.client('cloudwatch')
+        cloudwatch.put_metric_data(Namespace=configuration['namespace'],
+                                   MetricData=cloudwatch_request)
 
-    # Run found scripts
-    if not script_to_run:
-        logger.critical("No metric script to run !")
-        sys.exit(1)
-
-    for script in script_to_run:
-            process = subprocess.Popen(script, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            stdout, stderr = process.communicate()
-
-            if process.returncode != 0:
-                logger.error("Script %s failed (return code %s) : %s", script, process.returncode, stderr)
-            else:
-                logger.debug("Script %s output : %s", script, stdout)
+    # Statistics
+    logger.info("CloudWatch agent statistics : %s/%s/%s"
+                "(Requested metrics / Executed metrics / Metrics pushed to CloudWatch)",
+                len(metrics),
+                len([m for m in metrics if m['value']]),
+                len([m for m in metrics if m['cloudwatch']]),
+                len(cloudwatch_request))
 
 
 if __name__ == '__main__':
