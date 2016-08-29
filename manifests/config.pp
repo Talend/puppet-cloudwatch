@@ -25,7 +25,7 @@ class cloudwatch::config {
 
   #Set the CloudWatch Agent main script in Cron
   cron { 'CloudWatch Agent':
-    command     => "flock -n ${cloudwatch::base_dir}/venv/bin/python ${main_script_path} -c ${configuration_path} >/dev/null 2>&1",
+    command     => "flock -n 200 ${cloudwatch::base_dir}/venv/bin/python ${main_script_path} -c ${configuration_path} >/dev/null 2>&1",
     user        => $cloudwatch::user,
     minute      => '*/1',
     environment => 'HOME=/tmp',

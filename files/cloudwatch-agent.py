@@ -90,7 +90,6 @@ def run_metric_scripts(metrics_path, metrics, scripts):
                     logger.error("Script %s failed (return code %s) : %s", script, process.returncode, stderr)
                 else:
                     logger.debug("Script %s output : %s", script, stdout)
-                    metric['value'] = stdout
 
                     # Metric results to be pushed later on
                     metrics_values.append({
@@ -169,8 +168,8 @@ def main(kwargs):
     push_cloudwatch(cloudwatch_request)
 
     # Statistics
-    logger.info("CloudWatch agent statistics : %s/%s (Executed metrics / Requested metrics)",
-                len([m for m in metrics if hasattr(m, 'value')]),
+    logger.info("CloudWatch agent statistics : %s/%s (Pushed metrics / Requested metrics)",
+                len(cloudwatch_request),
                 len(metrics))
 
 
