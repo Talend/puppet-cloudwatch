@@ -1,7 +1,6 @@
 vendor/
 .bundle/
 .idea/
-.reviewboardrc
 log
 .vagrant
 spec/fixtures
