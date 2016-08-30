@@ -31,7 +31,7 @@ describe 'cloudwatch' do
 
     it do
       should contain_file('/opt/cloudwatch-agent').with({
-        :mode    => '0744',
+        :mode    => '0755',
         :ensure  => 'directory',
         :owner   => 'cloudwatch-agent',
         :source  => 'puppet:///modules/cloudwatch/cloudwatch_agent/',
@@ -42,7 +42,7 @@ describe 'cloudwatch' do
     it do
       should contain_file('/opt/cloudwatch-agent/requirements.txt').with({
         :ensure => 'present',
-        :source => 'puppet:///modules/cloudwatch/requirements.txt',
+        :source => 'puppet:///modules/cloudwatch/cloudwatch_agent/requirements.txt',
       })
     end
 
@@ -63,7 +63,7 @@ describe 'cloudwatch' do
 
     it do
       should contain_cron('CloudWatch Agent').with({
-        :command => 'flock -n 200 /opt/cloudwatch-agent/venv/bin/python /opt/cloudwatch-agent/cloudwatch-agent.py '\
+        :command => 'flock -n 200 /opt/cloudwatch-agent/venv/bin/python /opt/cloudwatch-agent/cw_agent.py '\
                     '-c /opt/cloudwatch-agent/configuration.yaml >/dev/null 2>&1',
         :user    => 'cloudwatch-agent',
         :minute  => '*/1',
