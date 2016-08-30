@@ -28,7 +28,7 @@ class cloudwatch::config {
     command     => "flock -n 200 ${cloudwatch::base_dir}/venv/bin/python ${main_script_path} -c ${configuration_path} >/dev/null 2>&1",
     user        => $cloudwatch::user,
     minute      => '*/1',
-    environment => 'HOME=/tmp',
+    environment => ['HOME=/tmp', 'PATH=/usr/bin:/bin'],
     require     => File[$main_script_path]
   }
 

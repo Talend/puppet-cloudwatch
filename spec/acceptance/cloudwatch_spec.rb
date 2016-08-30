@@ -2,6 +2,10 @@ require 'spec_helper'
 
 describe 'cloudwatch' do
 
+  describe user('cloudwatch-agent') do
+    if { should exists }
+  end
+
   describe file('/opt/cloudwatch-agent/cloudwatch-agent.py') do
     it { should be_file }
     it { should be_mode 744 }
@@ -15,6 +19,7 @@ describe 'cloudwatch' do
   end
 
   describe cron do
-    it { should have_entry('*/1 * * * * flock -n 200 /opt/cloudwatch-agent/venv/bin/python /opt/cloudwatch-agent/cloudwatch-agent.py >/dev/null 2>&1').with_user('cloudwatch-agent') }
+    it { should have_entry('*/1 * * * * flock -n 200 /opt/cloudwatch-agent/venv/bin/python '\
+                           '/opt/cloudwatch-agent/cloudwatch-agent.py >/dev/null 2>&1').with_user('cloudwatch-agent') }
   end
 end
