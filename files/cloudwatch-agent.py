@@ -94,7 +94,7 @@ def run_metric_scripts(metrics_path, metrics, scripts):
                     # Metric results to be pushed later on
                     metrics_values.append({
                         'MetricName': metric['name'],
-                        'Value': float(metric['value']),
+                        'Value': float(stdout),
                         'Unit': metric['unit']
                     })
 
