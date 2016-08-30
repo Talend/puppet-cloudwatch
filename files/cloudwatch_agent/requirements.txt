@@ -2,3 +2,4 @@ boto
 boto3
 docopt
 PyYAML
+pytest

@@ -50,12 +50,6 @@ class cloudwatch::install {
     comment => 'User for CloudWatch Agent',
   }
 
-  # Get Python dependencies for cloudwatch-agent
-  file { $pip_requirements :
-    ensure => 'present',
-    source => 'puppet:///modules/cloudwatch/requirements.txt',
-  }
-
   # Manage Third Party tools
   class { '::python':
     version    => system,
@@ -65,6 +59,23 @@ class cloudwatch::install {
   }
   -> class { '::awscli': }
 
+  ###############################
+  # Copy CloudWatch-Agent files #
+  ###############################
+
+  # Creates base directory
+  file { $cloudwatch::base_dir :
+    ensure  => directory,
+    mode    => '0755',
+    source  => 'puppet:///modules/cloudwatch/cloudwatch_agent/',
+    recurse => remote,
+  }
+
+  file { $pip_requirements :
+    ensure => 'present',
+    source => 'puppet:///modules/cloudwatch/cloudwatch_agent/requirements.txt',
+  }
+
   # Set a dedicated virtual env with requirements
   python::virtualenv { "${cloudwatch::base_dir}/venv":
     ensure       => present,
@@ -73,35 +84,7 @@ class cloudwatch::install {
     venv_dir     => "${cloudwatch::base_dir}/venv",
     owner        => $cloudwatch::user,
     group        => $cloudwatch::user,
-  }
-
-  ###############################
-  # Copy CloudWatch-Agent files #
-  ###############################
-
-  # Creates base directory
-  file { $cloudwatch::base_dir :
-    ensure => directory,
-    mode   => '0755',
-  }
-
-  # Copy metrics scripts
-  file { $metrics_path :
-    ensure  => directory,
-    source  => 'puppet:///modules/cloudwatch/metrics.d',
-    recurse => remote,
-  }
-
-  # Copy CloudWatch Agent main script
-  file { $main_script_path :
-    ensure => file,
-    source => "puppet:///modules/cloudwatch/${cloudwatch::main_script_name}",
-  }
-
-  # Copy configuration file template
-  file { $configuration_path :
-    ensure => file,
-    source => 'puppet:///modules/cloudwatch/configuration.yaml',
+    require      => [File[$cloudwatch::base_dir], File[$pip_requirements]],
   }
 
   # Bootstrap CloudWatch Agent logs

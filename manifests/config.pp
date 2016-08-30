@@ -29,7 +29,7 @@ class cloudwatch::config {
     user        => $cloudwatch::user,
     minute      => '*/1',
     environment => ['HOME=/tmp', 'PATH=/usr/bin:/bin'],
-    require     => File[$main_script_path],
+    require     => File[$cloudwatch::base_dir]
   }
 
   # TODO : extract configuration file from Hiera

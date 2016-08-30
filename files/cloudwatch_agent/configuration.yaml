@@ -20,7 +20,7 @@ logging:
 
     logfile:
       class: logging.handlers.RotatingFileHandler
-      filename: /var/log/cloudwatch-agent/cloudwatch-agent.log
+      filename: /var/log/cloudwatch-agent/cw_agent.log
       formatter: simpleFormatter
       level: NOTSET
       maxBytes: 4194304 # 4MB max

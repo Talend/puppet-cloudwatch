@@ -6,9 +6,21 @@ describe 'cloudwatch' do
     it { should exist }
   end
 
-  describe file('/opt/cloudwatch-agent/cloudwatch-agent.py') do
+  describe file('/opt/cloudwatch-agent/') do
+    it { should be_directory }
+    it { should be_mode 744 }
+    it { should be_owned_by 'cloudwatch-agent' }
+  end
+
+  describe file('/opt/cloudwatch-agent/cw_agent.py') do
     it { should be_file }
     it { should be_mode 744 }
+    it { should be_owned_by 'cloudwatch-agent' }
+  end
+
+  describe file('/opt/cloudwatch-agent/venv/bin/python') do
+    it { should be_file }
+    it { should be_executable.by('owner') }
     it { should be_owned_by 'cloudwatch-agent' }
   end
 
