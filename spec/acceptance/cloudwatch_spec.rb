@@ -3,7 +3,7 @@ require 'spec_helper'
 describe 'cloudwatch' do
 
   describe user('cloudwatch-agent') do
-    if { should exist }
+    it { should exist }
   end
 
   describe file('/opt/cloudwatch-agent/cloudwatch-agent.py') do
