@@ -35,7 +35,7 @@ class cloudwatch::install {
   File {
     owner  => $cloudwatch::user,
     group  => $cloudwatch::user,
-    mode   => '0744'
+    mode   => '0744',
   }
 
   ############################
@@ -47,7 +47,7 @@ class cloudwatch::install {
   # Creates a system user if required
   user { $cloudwatch::user :
     ensure  => 'present',
-    comment => 'User for CloudWatch Agent'
+    comment => 'User for CloudWatch Agent',
   }
 
   # Get Python dependencies for cloudwatch-agent
@@ -57,13 +57,13 @@ class cloudwatch::install {
   }
 
   # Manage Third Party tools
-  class { 'python':
+  class { '::python':
     version    => system,
     pip        => present,
     virtualenv => present,
-    dev        => present
+    dev        => present,
   }
-  -> class { 'awscli': }
+  -> class { '::awscli': }
 
   # Set a dedicated virtual env with requirements
   python::virtualenv { "${cloudwatch::base_dir}/venv":
@@ -72,7 +72,7 @@ class cloudwatch::install {
     requirements => $pip_requirements,
     venv_dir     => "${cloudwatch::base_dir}/venv",
     owner        => $cloudwatch::user,
-    group        => $cloudwatch::user
+    group        => $cloudwatch::user,
   }
 
   ###############################
@@ -106,6 +106,6 @@ class cloudwatch::install {
 
   # Bootstrap CloudWatch Agent logs
   file { $cloudwatch::logs_path :
-    ensure => directory
+    ensure => directory,
   }
 }

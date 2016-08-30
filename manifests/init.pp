@@ -36,6 +36,6 @@ class cloudwatch (
 
 ) inherits cloudwatch::params {
 
-  contain (cloudwatch::install, cloudwatch::config)
+  contain (::cloudwatch::install, ::cloudwatch::config)
   Class['cloudwatch::install'] -> Class['cloudwatch::config']
 }
