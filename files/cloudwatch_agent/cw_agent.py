@@ -86,7 +86,11 @@ class CWAgent:
                         metrics_values.append({
                             'MetricName': metric['name'],
                             'Value': float(stdout),
-                            'Unit': metric['unit']
+                            'Unit': metric['unit'],
+                            'Dimensions': [{
+                                'Name': 'InstanceID',
+                                'Value': utils.get_instance_metadata(data='meta-data/')['instance-id']
+                            }]
                         })
 
                     break
