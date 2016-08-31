@@ -32,7 +32,8 @@ class cloudwatch (
   $metrics_dir      = $cloudwatch::params::metrics_dir,
   $logs_path        = $cloudwatch::params::logs_path,
   $main_script_name = $cloudwatch::params::main_script_name,
-  $user             = $cloudwatch::params::user
+  $user             = $cloudwatch::params::user,
+  $metrics          = $cloudwatch::params::metrics
 
 ) inherits cloudwatch::params {
 

@@ -28,6 +28,7 @@ class cloudwatch::params (
   $logs_path          = '/var/log/cloudwatch-agent',
   $main_script_name   = 'cw_agent.py',
   $user               = 'cloudwatch-agent',
-  $configuration_name = 'configuration.yaml'
+  $configuration_name = 'configuration.yaml',
+  $metrics            = []
 )
 {}
