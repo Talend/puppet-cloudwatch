@@ -1,7 +1,6 @@
 vendor/
 .bundle/
 .idea/
-.reviewboardrc
 log
 .vagrant
 spec/fixtures
@@ -11,3 +10,4 @@ spec/fixtures
 .tmp/
 modules/
 build/
+coverage/

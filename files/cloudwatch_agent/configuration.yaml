@@ -1,0 +1,51 @@
+logging:
+  version: 1
+
+  loggers:
+    root:
+      level: INFO
+      handlers: [logfile]
+
+    cloudwatch-agent:
+      level: INFO
+      handlers: [logfile]
+      qualname: cloudwatch-agent
+
+    cloudwatch-agent-cli:
+      level: DEBUG
+      handlers: [logfile, console]
+      qualname: cloudwatch-agent-cli
+
+  handlers:
+
+    logfile:
+      class: logging.handlers.RotatingFileHandler
+      filename: /var/log/cloudwatch-agent/cw_agent.log
+      formatter: simpleFormatter
+      level: NOTSET
+      maxBytes: 4194304 # 4MB max
+      backupCount: 3
+
+    console:
+      class: logging.StreamHandler
+      stream: ext://sys.stdout
+      formatter: simpleFormatter
+      level: NOTSET
+
+  formatters:
+
+    simpleFormatter:
+      class: Formatter
+      format: '%(name)s %(asctime)s %(levelname)s %(message)s'
+
+namespace: 'TLND/'
+
+metrics:
+
+  - name   : DiskSpace
+    params : '-a'
+    unit   : Megabytes
+
+  - name   : Memory
+    params : '-a'
+    unit   : Megabytes

@@ -1,30 +1,25 @@
 # Class: cloudwatch
-# ===========================
+# =================
 #
-# Full description of class cloudwatch here.
+# Main class of the puppet-cloudwatch module.
+#
+# Does the following :
+#     * Install the CloudWatch Agent scripts
+#     * Creates a configuration file for the agent
+#     * Configure the agent to run through Cron
 #
 # Variables
-# ----------
-#
-# Here you should define a list of variables that this module would require.
-#
-# * `sample variable`
-#  Explanation of how this variable affects the function of this class and if
-#  it has a default. e.g. "The parameter enc_ntp_servers must be set by the
-#  External Node Classifier as a comma separated list of hostnames." (Note,
-#  global variables should be avoided in favor of class parameters as
-#  of Puppet 2.6.)
-#
-# Examples
-# --------
-#
-# @example
-#    class { 'cloudwatch': }
+# ---------
+# * $base_dir         : Absolute path to the base directory where the CloudWatch Agent is installed
+# * $metrics_dir      : Name of the directory storing metric scripts
+# * $logs_path        : Absolute path the directory where logs are written
+# * $main_script_name : Name of the CloudWatch Agent main script
+# * $user             : Name of the user which executes the CloudWatch Agent
 #
 # Authors
 # -------
 #
-# Author Name <andreas.heumaier@nordcloud.com>
+# Talend DevOps Team
 #
 # Copyright
 # ---------
@@ -33,32 +28,14 @@
 #
 class cloudwatch (
 
-  $metrics_namespace = 'default',
-  $metrics_path      = '/opt/talend/cloudwatch/metrics.d',
+  $base_dir         = $cloudwatch::params::base_dir,
+  $metrics_dir      = $cloudwatch::params::metrics_dir,
+  $logs_path        = $cloudwatch::params::logs_path,
+  $main_script_name = $cloudwatch::params::main_script_name,
+  $user             = $cloudwatch::params::user
 
-){
+) inherits cloudwatch::params {
 
-  validate_absolute_path($metrics_path)
-
-  include awscli
-
-  file { ['/opt/talend','/opt/talend/cloudwatch', '/opt/talend/cloudwatch/metrics.d']:
-    ensure => directory,
-    mode   => '0755',
-    owner  => 'root',
-    group  => 'root',
-  }
-
-  file { '/usr/local/bin/send_metrics':
-    ensure  => 'present',
-    mode    => '0744',
-    content => template('cloudwatch/talend/send_metrics.sh.erb')
-  }
-
-  cron { 'cloudwatch_metrics':
-    command => '/usr/local/bin/send_metrics',
-    user    => 'root',
-    minute  => '*/1',
-  }
-
+  contain (::cloudwatch::install, ::cloudwatch::config)
+  Class['cloudwatch::install'] -> Class['cloudwatch::config']
 }

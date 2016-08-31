@@ -5,7 +5,7 @@ module Puppet::Parser::Functions
     data.length.times do |counter|
       if tmp.empty?
         results << data.join('/')
-        tmp =  data[0...-1]
+        tmp = data[0...-1]
       else
          results << tmp[0...-1].join('/')
       end

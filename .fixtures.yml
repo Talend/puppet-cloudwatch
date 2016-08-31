@@ -5,5 +5,9 @@ fixtures:
     stdlib: "puppetlabs/stdlib"
     concat: "puppetlabs/concat"
     awscli: "jdowning/awscli"
-    aws: "puppetlabs-aws"
-    epel: "stahnma/epel"
+    aws:    "puppetlabs-aws"
+    epel:   "stahnma/epel"
+  repositories:
+    python:
+      repo:   "git://github.com/mpdude/puppet-python"
+      branch: "rename-pip-package"
