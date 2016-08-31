@@ -57,6 +57,12 @@ describe 'cloudwatch' do
       })
     end
 
+    it do
+      should contain_file('/var/log/cloudwatch-agent').with({
+        :ensure => 'directory',
+      })
+    end
+
     ########################
     # Test : configuration #
     ########################
