@@ -32,5 +32,7 @@ class cloudwatch::config {
     require     => File[$cloudwatch::base_dir],
   }
 
-  # TODO : extract configuration file from Hiera
+  file { "${cloudwatch::base_dir}/metrics.yaml":
+    content => "${cloudwatch::metrics}",
+  }
 }
