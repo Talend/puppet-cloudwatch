@@ -32,7 +32,13 @@ class cloudwatch::config {
     require     => File[$cloudwatch::base_dir],
   }
 
-  file { "${cloudwatch::base_dir}/metrics.yaml":
-    content => "${cloudwatch::metrics}",
+  #file { "${cloudwatch::base_dir}/metrics.yaml":
+  #  content => "${cloudwatch::metrics}",
+  #}
+
+  yaml_setting { "${cloudwatch::base_dir}/metrics.yaml":
+    target => "${cloudwatch::base_dir}/metrics.yaml",
+    key    => 'metrics',
+    value  => $cloudwatch::metrics,
   }
 }

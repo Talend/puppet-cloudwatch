@@ -2,11 +2,13 @@ fixtures:
   symlinks:
     cloudwatch: '#{source_dir}'
   forge_modules:
-    stdlib: "puppetlabs/stdlib"
-    concat: "puppetlabs/concat"
-    awscli: "jdowning/awscli"
-    aws:    "puppetlabs-aws"
-    epel:   "stahnma/epel"
+    stdlib:     "puppetlabs/stdlib"
+    concat:     "puppetlabs/concat"
+    awscli:     "jdowning/awscli"
+    aws:        "puppetlabs-aws"
+    epel:       "stahnma/epel"
+    yamlfile:   "reidmv-yamlfile"
+    filemapper: "adrien-filemapper"
   repositories:
     python:
       repo:   "git://github.com/mpdude/puppet-python"
