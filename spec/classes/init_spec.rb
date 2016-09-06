@@ -47,6 +47,12 @@ describe 'cloudwatch' do
     end
 
     it do
+      should contain_file('/opt/cloudwatch-agent/metrics.yaml').with({
+        :ensure => 'present',
+      })
+    end
+
+    it do
       is_expected.to contain_python__virtualenv('/opt/cloudwatch-agent/venv').with({
         :ensure       => 'present',
         :version      => 'system',
@@ -70,7 +76,7 @@ describe 'cloudwatch' do
     it do
       should contain_cron('CloudWatch Agent').with({
         :command => 'flock -n 200 /opt/cloudwatch-agent/venv/bin/python /opt/cloudwatch-agent/cw_agent.py '\
-                    '-c /opt/cloudwatch-agent/configuration.yaml >/dev/null 2>&1',
+                    '-c /opt/cloudwatch-agent/configuration.yaml -m /opt/cloudwatch-agent/metrics.yaml >/dev/null 2>&1',
         :user    => 'cloudwatch-agent',
         :minute  => '*/1',
       })

@@ -4,15 +4,18 @@
 """CloudWatch Agent
 
 Usage:
-  cw_agent.py [-d | --debug] -c <file> | --config <file>
+  cw_agent.py [-d | --debug] -c <file> | --config <file> -m <file> | --metrics <file>
   cw_agent.py (-h | --help)
 
 Options:
   -c <file> --config <file>   Absolute path to a YAML configuration file
+  -m <file> --metrics <file>  Absolute path to the YAML file specifying requested monitoring metrics.
   -d        --debug           Set a more verbose logging.
   -h        --help            Show this screen.
 
 """
+
+from __future__ import print_function
 
 from boto import utils
 import botocore
@@ -21,20 +24,26 @@ from docopt import docopt
 import logging.config
 import os
 import subprocess
+import sys
 import yaml
 
 
 class CWAgent:
     """
     Main class of the CloudWatch Agent
+
+    :param configuration: Dict with configuration (logging,...)
+    :param metrics:       Dict with requested monitoring metrics
     """
 
-    def __init__(self, configuration, debug=False):
+    def __init__(self, configuration, metrics, debug=False):
         """
         Load configuration & logging
         """
 
         self.configuration = configuration
+        self.metrics = metrics
+
         logging.config.dictConfig(configuration['logging'])
 
         if debug:
@@ -42,7 +51,7 @@ class CWAgent:
         else:
             self.logger = logging.getLogger('cloudwatch-agent')
 
-    def run_metric_scripts(self, metrics_path, metrics, scripts):
+    def run_metric_scripts(self, metrics_path, scripts):
         """
         Match requested metric scripts and available ones
         Notes :
@@ -50,7 +59,6 @@ class CWAgent:
           * File extension is not taken in account for matching names
 
         :param metrics_path: Absolute path to the place where scripts are stored
-        :param metrics:      List of metrics (in dicts) required
         :param scripts:      List of scripts found
         :return:             A list of metric data to push in CloudWatch (Dict format for Boto)
         """
@@ -58,7 +66,7 @@ class CWAgent:
         self.logger.info('Get metrics values')
 
         metrics_values = []
-        for metric in metrics:
+        for metric in self.metrics:
 
             found = False
             metric_name = metric['name'].lower()
@@ -123,7 +131,7 @@ class CWAgent:
 
             try:
                 cloudwatch = boto3.client('cloudwatch')
-                cloudwatch.put_metric_data(Namespace=configuration['namespace'],
+                cloudwatch.put_metric_data(Namespace=self.configuration['namespace'],
                                            MetricData=request)
 
             except botocore.exceptions.BotoCoreError as e:
@@ -138,16 +146,13 @@ class CWAgent:
 
         self.logger.info('New run of CloudWatch Agent')
 
-        metrics = configuration['metrics']
-        self.logger.debug("Configured metrics : {0}".format(metrics))
-
         metrics_path = "{0}/metrics.d".format(os.path.dirname(os.path.realpath(__file__)))
         available_scripts = [f for f in os.listdir(metrics_path) if os.path.isfile(os.path.join(metrics_path, f))]
 
         self.logger.debug("Found scripts : {0}".format(available_scripts))
 
         # Execute all matches
-        cloudwatch_request = self.run_metric_scripts(metrics_path, metrics, available_scripts)
+        cloudwatch_request = self.run_metric_scripts(metrics_path, available_scripts)
         self.set_aws_region()
 
         try:
@@ -159,14 +164,19 @@ class CWAgent:
         # Statistics
         self.logger.info("CloudWatch agent statistics : %s/%s (Pushed metrics / Requested metrics)",
                          len(cloudwatch_request),
-                         len(metrics))
+                         len(self.metrics))
 
 
 if __name__ == '__main__':
     arguments = docopt(__doc__)
 
-    with open(arguments['--config']) as f:
-        configuration = yaml.load(f)
+    try:
+        conf_file = open(arguments['--config'])
+        metrics_file = open(arguments['--metrics'])
 
-        agent = CWAgent(configuration, arguments['--debug'])
+        agent = CWAgent(yaml.load(conf_file), yaml.load(metrics_file), arguments['--debug'])
         agent.run()
+
+    except Exception as e:
+        print('Error during Cloudwatch-Agent excecution : {0}'.format(e), file=sys.stderr)
+

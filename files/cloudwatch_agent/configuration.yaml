@@ -39,13 +39,3 @@ logging:
       format: '%(name)s %(asctime)s %(levelname)s %(message)s'
 
 namespace: 'TLND/'
-
-metrics:
-
-  - name   : DiskSpace
-    params : '-a'
-    unit   : Megabytes
-
-  - name   : Memory
-    params : '-a'
-    unit   : Megabytes

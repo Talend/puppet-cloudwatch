@@ -7,8 +7,6 @@ fixtures:
     awscli:     "jdowning/awscli"
     aws:        "puppetlabs-aws"
     epel:       "stahnma/epel"
-    yamlfile:   "reidmv-yamlfile"
-    filemapper: "adrien-filemapper"
   repositories:
     python:
       repo:   "git://github.com/mpdude/puppet-python"
