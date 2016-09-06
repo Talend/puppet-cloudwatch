@@ -30,6 +30,6 @@ class cloudwatch::params (
   $user               = 'cloudwatch-agent',
   $configuration_file = 'configuration.yaml',
   $metrics_file       = 'metrics.yaml',
-  $metrics            = []
+  $metrics            = [],
 )
 {}

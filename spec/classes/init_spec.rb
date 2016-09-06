@@ -47,12 +47,6 @@ describe 'cloudwatch' do
     end
 
     it do
-      should contain_file('/opt/cloudwatch-agent/metrics.yaml').with({
-        :ensure => 'present',
-      })
-    end
-
-    it do
       is_expected.to contain_python__virtualenv('/opt/cloudwatch-agent/venv').with({
         :ensure       => 'present',
         :version      => 'system',
@@ -72,6 +66,24 @@ describe 'cloudwatch' do
     ########################
     # Test : configuration #
     ########################
+
+    it do
+      should contain_file('/opt/cloudwatch-agent/configuration.yaml').with({
+        :ensure => 'present',
+      })
+    end
+
+    it do
+      is_expected.to contain_file_line('Set namespace').with({
+        :ensure => 'present',
+      })
+    end
+
+    it do
+      should contain_file('/opt/cloudwatch-agent/metrics.yaml').with({
+        :ensure => 'present',
+      })
+    end
 
     it do
       should contain_cron('CloudWatch Agent').with({

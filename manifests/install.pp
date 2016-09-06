@@ -90,10 +90,4 @@ class cloudwatch::install {
   file { $cloudwatch::logs_path :
     ensure => directory,
   }
-
-  # Set the list of monitoring metrics
-  file { "${cloudwatch::base_dir}/metrics.yaml":
-    ensure  => present,
-    content => inline_template('<%= scope["cloudwatch::metrics"].to_yaml %>'),
-  }
 }
