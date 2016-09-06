@@ -80,26 +80,32 @@ class CWAgent:
                     script = ["{0}/{1}".format(metrics_path, script), metric['params']]
 
                     self.logger.debug('Ready to execute %s', script)
+                    try:
 
-                    process = subprocess.Popen(script, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    stdout, stderr = process.communicate()
+                        process = subprocess.Popen(script, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                        stdout, stderr = process.communicate()
 
-                    if process.returncode != 0:
-                        self.logger.error("Script %s failed (return code %s) : %s", script, process.returncode, stderr)
+                        if process.returncode != 0:
+                            raise Exception("Script {0} failed (return code {1}) : {2}".format(script,
+                                                                                               process.returncode,
+                                                                                               stderr))
 
-                    else:
-                        self.logger.debug("Script %s output : %s", script, stdout)
+                        else:
+                            self.logger.debug("Script %s output : %s", script, stdout)
 
-                        # Metric results to be pushed later on
-                        metrics_values.append({
-                            'MetricName': metric['name'],
-                            'Value': float(stdout),
-                            'Unit': metric['unit'],
-                            'Dimensions': [{
-                                'Name': 'InstanceID',
-                                'Value': utils.get_instance_metadata(data='meta-data/')['instance-id']
-                            }]
-                        })
+                            # Metric results to be pushed later on
+                            metrics_values.append({
+                                'MetricName': metric['name'],
+                                'Value': float(stdout),
+                                'Unit': metric['unit'],
+                                'Dimensions': [{
+                                    'Name': 'InstanceID',
+                                    'Value': utils.get_instance_metadata(data='meta-data/')['instance-id']
+                                }]
+                            })
+
+                    except Exception as e:
+                        self.logger.error("Error during metric script execution : %s", e)
 
                     break
 
