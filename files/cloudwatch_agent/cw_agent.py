@@ -185,4 +185,3 @@ if __name__ == '__main__':
 
     except Exception as e:
         print('Error during Cloudwatch-Agent excecution : {0}'.format(e), file=sys.stderr)
-
