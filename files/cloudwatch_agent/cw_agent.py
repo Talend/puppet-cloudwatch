@@ -191,8 +191,8 @@ class CWAgent(object):
 
         # Statistics
         LOG.info("CloudWatch agent statistics : %s/%s (Pushed metrics / Requested metrics)",
-                         len(cloudwatch_request),
-                         len(self.metrics))
+                 len(cloudwatch_request),
+                 len(self.metrics))
 
 
 if __name__ == '__main__':
