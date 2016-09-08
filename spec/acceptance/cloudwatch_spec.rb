@@ -8,7 +8,13 @@ describe 'cloudwatch' do
 
   describe file('/opt/cloudwatch-agent/') do
     it { should be_directory }
-    it { should be_mode 744 }
+    it { should be_mode 755 }
+    it { should be_owned_by 'cloudwatch-agent' }
+  end
+
+  describe file('/var/log/cloudwatch-agent/') do
+    it { should be_directory }
+    it { should be_mode 755 }
     it { should be_owned_by 'cloudwatch-agent' }
   end
 
@@ -38,9 +44,8 @@ describe 'cloudwatch' do
 
   describe cron do
     it do
-      should have_entry('*/1 * * * * flock -n 200 '\
-      '/opt/cloudwatch-agent/venv/bin/python /opt/cloudwatch-agent/cw_agent.py '\
-      '-c /opt/cloudwatch-agent/configuration.py -m /opt/cloudwatch-agent/metrics.yaml '\
+      should have_entry('*/1 * * * * flock -n /tmp/cloudwatch-agent.lock /opt/cloudwatch-agent/venv/bin/python '\
+      '/opt/cloudwatch-agent/cw_agent.py --metrics /opt/cloudwatch-agent/metrics.yaml '\
       '>/dev/null 2>&1').with_user('cloudwatch-agent')
     end
   end

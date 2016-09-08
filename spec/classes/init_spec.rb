@@ -60,18 +60,14 @@ describe 'cloudwatch' do
     it do
       should contain_file('/var/log/cloudwatch-agent').with({
         :ensure => 'directory',
+        :mode    => '0755',
+        :owner   => 'cloudwatch-agent',
       })
     end
 
     ########################
     # Test : configuration #
     ########################
-
-    it do
-      should contain_file('/opt/cloudwatch-agent/configuration.yaml').with({
-        :ensure => 'present',
-      })
-    end
 
     it do
       is_expected.to contain_file_line('Set namespace').with({
@@ -82,13 +78,15 @@ describe 'cloudwatch' do
     it do
       should contain_file('/opt/cloudwatch-agent/metrics.yaml').with({
         :ensure => 'present',
+        :mode    => '0644',
+        :owner   => 'cloudwatch-agent',
       })
     end
 
     it do
       should contain_cron('CloudWatch Agent').with({
-        :command => 'flock -n 200 /opt/cloudwatch-agent/venv/bin/python /opt/cloudwatch-agent/cw_agent.py '\
-                    '-c /opt/cloudwatch-agent/configuration.yaml -m /opt/cloudwatch-agent/metrics.yaml >/dev/null 2>&1',
+        :command => 'flock -n /tmp/cloudwatch-agent.lock /opt/cloudwatch-agent/venv/bin/python /opt/cloudwatch-agent/cw_agent.py '\
+                    '--metrics /opt/cloudwatch-agent/metrics.yaml >/dev/null 2>&1',
         :user    => 'cloudwatch-agent',
         :minute  => '*/1',
       })

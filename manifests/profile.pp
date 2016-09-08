@@ -22,6 +22,6 @@
 class cloudwatch::profile {
 
   class { '::cloudwatch':
-    metrics => hiera_array('cloudwatch::metrics'),
+    metrics => hiera_array('cloudwatch::metrics', []),
   }
 }

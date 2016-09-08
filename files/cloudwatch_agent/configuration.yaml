@@ -6,15 +6,9 @@ logging:
       level: INFO
       handlers: [logfile]
 
-    cloudwatch-agent:
+    CWAgent:
       level: INFO
       handlers: [logfile]
-      qualname: cloudwatch-agent
-
-    cloudwatch-agent-cli:
-      level: DEBUG
-      handlers: [logfile, console]
-      qualname: cloudwatch-agent-cli
 
   handlers:
 
@@ -25,12 +19,6 @@ logging:
       level: NOTSET
       maxBytes: 4194304 # 4MB max
       backupCount: 3
-
-    console:
-      class: logging.StreamHandler
-      stream: ext://sys.stdout
-      formatter: simpleFormatter
-      level: NOTSET
 
   formatters:
 

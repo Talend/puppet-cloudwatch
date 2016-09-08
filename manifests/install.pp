@@ -89,5 +89,6 @@ class cloudwatch::install {
   # Bootstrap CloudWatch Agent logs
   file { $cloudwatch::logs_path :
     ensure => directory,
+    mode   => '0755',
   }
 }
