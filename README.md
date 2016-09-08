@@ -22,10 +22,11 @@
 Running puppet-cloudwatch will do the following things on the instance :
 
 * A sub-folder is created to store all files related to the CloudWatch Agent
-    * Default sub-folder : '/opt/talend/cloudwatch/'
+    * Default sub-folder : '/opt/cloudwatch-agent/'
 * A script is set in Cron to run at a set interval all required metrics scripts
     * Default interval : every minutes
-    * Default script name : cloudwatch_agent.sh
+* A sub-folder is created to store logs produec by the CloudWatch Agent
+    * Default sub-folder : '/var/log/cloudwatch-agent/'
 
 ### Setup Requirements
 
@@ -46,8 +47,22 @@ CloudWatch Agent as well as setting up the Cron job to run it.
 
 ## Usage
 
-TO DO : explain how to implement a new metric.
+### Implementing a new metric
+
+In order to implement a new monitoring metric you have to :
+
+* Create a script in files/cloudwatch_agent/metrics.d that will be used by the agent to collect a metric value.
+    * this script must print a numeric value (integer or float)
+    * CloudWatch Agent expects a return code 0 from metric scripts to consider that the execution went well.
+* Declare this metric in the relevant Hiera YAML file using the following format :
+
+```yaml
+cloudwatch::metrics:
+  - name   : <must match the name of your script without file extension (case insensitive)>
+    params : '<arguments & options you want to provide to your script'
+    unit   : <Unit name from the allowed list of units in CloudWatch. See reference below.>
+```
 
 ## Reference
 
-TO DO : provide code documentation here
+1. [AWS CloudWatch Metric reference](http://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_MetricDatum.html)
