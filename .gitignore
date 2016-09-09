@@ -11,4 +11,4 @@ spec/fixtures
 modules/
 build/
 coverage/
-.tox
+.tox/
