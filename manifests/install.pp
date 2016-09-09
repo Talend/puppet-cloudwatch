@@ -25,7 +25,6 @@ class cloudwatch::install {
 
   $metrics_path       = "${cloudwatch::base_dir}/${cloudwatch::metrics_dir}"
   $main_script_path   = "${cloudwatch::base_dir}/${cloudwatch::main_script_name}"
-  $configuration_path = "${cloudwatch::base_dir}/${cloudwatch::configuration_name}"
   $pip_requirements   = "${cloudwatch::base_dir}/requirements.txt"
 
   ############
@@ -90,5 +89,6 @@ class cloudwatch::install {
   # Bootstrap CloudWatch Agent logs
   file { $cloudwatch::logs_path :
     ensure => directory,
+    mode   => '0755',
   }
 }

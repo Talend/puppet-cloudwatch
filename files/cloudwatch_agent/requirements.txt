@@ -3,3 +3,5 @@ boto3
 docopt
 PyYAML
 pytest
+pep8
+tox
