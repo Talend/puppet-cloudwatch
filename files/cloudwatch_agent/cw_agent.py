@@ -31,7 +31,7 @@ import yaml
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
-conf_file = "{0}/configuration.yaml".format(script_dir)
+conf_file = "{0}/logging.yaml".format(script_dir)
 configuration = yaml.load(open(conf_file))
 
 log_config = configuration['logging']
