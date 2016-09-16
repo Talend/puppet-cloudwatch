@@ -69,6 +69,23 @@ class CWAgent(object):
 
         return do_log_steps
 
+    @staticmethod
+    def get_metric_dimensions():
+        """
+        Return a list of CloudWatch dimensions
+        Dimensions provided :
+        * InstanceID : value got from the instance metadata
+
+        :return: Enriched metric dict with dimensions.
+        """
+
+        return [{
+            'Name': 'InstanceID',
+            'Value': utils.get_instance_metadata(data='meta-data/')['instance-id']
+        }]
+
+        return metric_result
+
     @log_steps
     def run_metric_scripts(self, metrics_path, scripts):
         """
@@ -85,18 +102,19 @@ class CWAgent(object):
         LOG.info('Get metrics values')
 
         metrics_values = []
-        for metric in self.metrics:
+
+        for metric_name, metric_spec in self.metrics.iteritems():
 
             found = False
-            metric_name = metric['name'].lower()
+            metric_script_type = metric_spec['type'].lower()
 
             for script in scripts:
 
                 # Run command if the script is found for the requested metric
-                if script.lower().split('.')[0] == metric_name:
+                if script.lower().split('.')[0] == metric_script_type:
 
                     found = True
-                    script = ["{0}/{1}".format(metrics_path, script), metric['params']]
+                    script = ["{0}/{1}".format(metrics_path, script), metric_spec['params']]
 
                     LOG.debug('Ready to execute %s', script)
                     try:
@@ -108,20 +126,24 @@ class CWAgent(object):
                             raise Exception("Script {0} failed (return code {1}) : {2}".format(script,
                                                                                                process.returncode,
                                                                                                stderr))
-
                         else:
                             LOG.debug("Script %s output : %s", script, stdout)
 
                             # Metric results to be pushed later on
-                            metrics_values.append({
-                                'MetricName': metric['name'],
-                                'Value': float(stdout),
-                                'Unit': metric['unit'],
-                                'Dimensions': [{
-                                    'Name': 'InstanceID',
-                                    'Value': utils.get_instance_metadata(data='meta-data/')['instance-id']
-                                }]
-                            })
+                            metric_result = {'MetricName': metric_name,
+                                             'Unit': metric_spec['unit']
+                                             }
+
+                            # Manage result type
+                            if metric_spec['unit'] == 'None':
+                                metric_result['Value'] = stdout
+                            else:
+                                metric_result['Value'] = float(stdout)
+
+                            # Manage dimensions
+                            metric_result['Dimensions'] = self.get_metric_dimensions()
+
+                            metrics_values.append(metric_result)
 
                     except Exception as e:
                         LOG.error("Error during metric script execution : %s", e)
@@ -129,7 +151,7 @@ class CWAgent(object):
                     break
 
             if not found:
-                LOG.error("Requested metric script %s was not found in %s", metric['name'], metrics_path)
+                LOG.error("Requested metric script %s was not found in %s", metric_script_type, metrics_path)
 
         return metrics_values
 
