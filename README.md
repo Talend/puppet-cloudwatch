@@ -58,11 +58,54 @@ In order to implement a new monitoring metric you have to :
 
 ```yaml
 cloudwatch::metrics:
-  - name   : <must match the name of your script without file extension (case insensitive)>
-    params : '<arguments & options you want to provide to your script'
-    unit   : <Unit name from the allowed list of units in CloudWatch. See reference below.>
+    
+  Metric name:
+    type              : name of the script available in metrics.d on
+                        instances (without file extention)
+    params            : List of parameters to give to the script
+                        between single quotes.
+    unit              : CloudWatch unit
+    description       : A small description of the metric
+    statistic         : CloudWatch statistic applied to the metric value
+    period            : Number in seconds (multiples of 60) over which
+                        the statistic is applied
+    evaluationperiods : Number of periods over which data is
+                        compared to the threshold
+    threshold         : Value against which the statistic is compared
+    comparisonoperator: CloudWatch comparison operator
+```
+
+Note : unit, statistic, period, evaluationperiods, threshold & comparison operator are CloudWatch
+concepts. Their value must match CloudWatch specifications (type of values, etc....).
+See the reference below.
+
+Example from hieradata/global.yaml :
+
+```yaml
+cloudwatch::metrics:
+  DiskSpace:
+    type              : diskspace
+    params            : '-f /'
+    unit              : Percent
+    description       : 'Percentage of used disk space for root filesystem'
+    statistic         : 'Average'
+    period            : 300
+    evaluationperiods : 10
+    threshold         : 1000
+    comparisonoperator: "GreaterThanThreshold"
+
+  Memory:
+    type              : memory
+    params            : ''
+    unit              : Megabytes
+    description       : 'Memory available on the system in MB.'
+    statistic         : 'Average'
+    period            : 300
+    evaluationperiods : 10
+    threshold         : 1000
+    comparisonoperator: "GreaterThanThreshold"
 ```
 
 ## Reference
 
-1. [AWS CloudWatch Metric reference](http://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_MetricDatum.html)
+1. [AWS CloudWatch Concepts](http://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html)
