@@ -46,6 +46,13 @@ class cloudwatch::config {
     match  => '^[[:space:]]*namespace:',
   }
 
+  # Add "cloudwatch-agent" sudo rights (defined in Hiera) to existing sudoers.
+  class { 'sudo':
+      purge               => false,
+      config_file_replace => false,
+    }
+  include sudo::configs
+
   #Set the CloudWatch Agent main script in Cron
   cron { 'CloudWatch Agent':
     command     => "flock -n /tmp/cloudwatch-agent.lock ${cloudwatch::base_dir}/venv/bin/python ${main_script_path} \

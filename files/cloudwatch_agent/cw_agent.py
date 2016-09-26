@@ -22,6 +22,7 @@ import boto3
 from docopt import docopt
 import logging.config
 import os
+import shlex
 import subprocess
 import yaml
 
@@ -84,20 +85,20 @@ class CWAgent(object):
 
         for metric_name, metric_spec in metrics.iteritems():
 
-            script = [metric_spec['script'], metric_spec['params']]
+            script_call = "{0} {1}".format(metric_spec['script'], metric_spec['params'])
 
-            LOG.debug('Ready to execute %s', script)
+            LOG.debug('Ready to execute %s', script_call)
             try:
 
-                process = subprocess.Popen(script, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                process = subprocess.Popen(shlex.split(script_call), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 stdout, stderr = process.communicate()
 
                 if process.returncode != 0:
-                    raise Exception("Script {0} failed (return code {1}) : {2}".format(script,
+                    raise Exception("Script {0} failed (return code {1}) : {2}".format(script_call,
                                                                                        process.returncode,
                                                                                        stderr))
                 else:
-                    LOG.debug("Script %s output : %s", script, stdout)
+                    LOG.debug("Script %s output : %s", script_call, stdout)
 
                     # Metric results to be pushed later on
                     metric_result = {'MetricName': metric_name,
@@ -110,12 +111,13 @@ class CWAgent(object):
                         metric_result['Value'] = float(stdout)
 
                         # Manage dimensions
-                        metric_result['Dimensions'] = self.get_metric_dimensions(metric_spec['dimensions'])
+                        requested_dimensions = getattr(metric_spec, 'dimensions', [])
+                        metric_result['Dimensions'] = self.get_metric_dimensions(requested_dimensions)
 
                         metrics_values.append(metric_result)
 
             except Exception as e:
-                LOG.error("Error during metric script execution : %s", e)
+                LOG.exception("Error during metric script execution : %s", e)
 
         return metrics_values
 
@@ -159,7 +161,7 @@ class CWAgent(object):
 
         ecs_cluster = 'Blabla'
 
-        return {'ECSCluster' : ecs_cluster}
+        return {'ECSCluster': ecs_cluster}
 
     @staticmethod
     @log_steps
@@ -250,6 +252,8 @@ class CWAgent(object):
 
         # Match requested metrics vs available scripts
         available_metrics = self.match_metrics(self.metrics, available_scripts, scripts_path)
+
+        LOG.debug("Metrics to evaluate : %s", available_metrics)
 
         # Execute all matches
         cloudwatch_request = self.evaluate_metrics(available_metrics)
