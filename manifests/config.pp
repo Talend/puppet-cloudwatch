@@ -47,11 +47,11 @@ class cloudwatch::config {
   }
 
   # Add "cloudwatch-agent" sudo rights (defined in Hiera) to existing sudoers.
-  class { 'sudo':
+  class { '::sudo':
       purge               => false,
       config_file_replace => false,
     }
-  include sudo::configs
+  include ::sudo::configs
 
   #Set the CloudWatch Agent main script in Cron
   cron { 'CloudWatch Agent':
