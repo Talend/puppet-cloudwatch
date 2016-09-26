@@ -69,102 +69,137 @@ class CWAgent(object):
 
         return do_log_steps
 
-    @staticmethod
-    def get_metric_dimensions():
-        """
-        Return a list of CloudWatch dimensions
-        Dimensions provided :
-        * InstanceID : value got from the instance metadata
-
-        :return: Enriched metric dict with dimensions.
-        """
-
-        return [{
-            'Name': 'InstanceID',
-            'Value': utils.get_instance_metadata(data='meta-data/')['instance-id']
-        }]
-
-        return metric_result
-
     @log_steps
-    def run_metric_scripts(self, metrics_path, scripts):
+    def evaluate_metrics(self, metrics):
         """
-        Match requested metric scripts and available ones
-        Notes :
-          * matches are made in lower cases to have case insensitive behaviour
-          * File extension is not taken in account for matching names
+        Evaluate metrics using subprocesses to run scripts.
 
-        :param metrics_path: Absolute path to the place where scripts are stored
-        :param scripts:      List of scripts found
-        :return:             A list of metric data to push in CloudWatch (Dict format for Boto)
+        :param metrics: Dict of metric to evaluate
+        :return:        A list of metrics data to push in CloudWatch (Dict format for Boto)
         """
 
         LOG.info('Get metrics values')
 
         metrics_values = []
 
-        for metric_name, metric_spec in self.metrics.iteritems():
+        for metric_name, metric_spec in metrics.iteritems():
 
-            found = False
-            metric_script_type = metric_spec['type'].lower()
+            script = [metric_spec['script'], metric_spec['params']]
 
-            for script in scripts:
+            LOG.debug('Ready to execute %s', script)
+            try:
 
-                # Run command if the script is found for the requested metric
-                if script.lower().split('.')[0] == metric_script_type:
+                process = subprocess.Popen(script, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
 
-                    found = True
-                    script = ["{0}/{1}".format(metrics_path, script), metric_spec['params']]
+                if process.returncode != 0:
+                    raise Exception("Script {0} failed (return code {1}) : {2}".format(script,
+                                                                                       process.returncode,
+                                                                                       stderr))
+                else:
+                    LOG.debug("Script %s output : %s", script, stdout)
 
-                    LOG.debug('Ready to execute %s', script)
-                    try:
+                    # Metric results to be pushed later on
+                    metric_result = {'MetricName': metric_name,
+                                     'Unit': metric_spec['unit']}
 
-                        process = subprocess.Popen(script, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                        stdout, stderr = process.communicate()
+                    # Manage result type
+                    if metric_spec['unit'] == 'None':
+                        metric_result['Value'] = stdout
+                    else:
+                        metric_result['Value'] = float(stdout)
 
-                        if process.returncode != 0:
-                            raise Exception("Script {0} failed (return code {1}) : {2}".format(script,
-                                                                                               process.returncode,
-                                                                                               stderr))
-                        else:
-                            LOG.debug("Script %s output : %s", script, stdout)
+                        # Manage dimensions
+                        metric_result['Dimensions'] = self.get_metric_dimensions(metric_spec['dimensions'])
 
-                            # Metric results to be pushed later on
-                            metric_result = {'MetricName': metric_name,
-                                             'Unit': metric_spec['unit']
-                                             }
+                        metrics_values.append(metric_result)
 
-                            # Manage result type
-                            if metric_spec['unit'] == 'None':
-                                metric_result['Value'] = stdout
-                            else:
-                                metric_result['Value'] = float(stdout)
-
-                            # Manage dimensions
-                            metric_result['Dimensions'] = self.get_metric_dimensions()
-
-                            metrics_values.append(metric_result)
-
-                    except Exception as e:
-                        LOG.error("Error during metric script execution : %s", e)
-
-                    break
-
-            if not found:
-                LOG.error("Requested metric script %s was not found in %s", metric_script_type, metrics_path)
+            except Exception as e:
+                LOG.error("Error during metric script execution : %s", e)
 
         return metrics_values
 
     @log_steps
-    def set_aws_region(self):
+    def get_metric_dimensions(self, requested_dimensions):
         """
-        Set an environment variable AWS_DEFAULT_REGION with the name of the AWS Region got from instance metadata.
-        :return: None
-        """
-        aws_region = utils.get_instance_metadata(data='meta-data/placement/')['availability-zone'][:-1]
-        LOG.debug("AWS Region : %s", aws_region)
+        Evaluate a list of CloudWatch dimensions requested by a metric.
+        Requested dimensions will be evaluated by a method using the same name as the dimension.
 
-        os.environ["AWS_DEFAULT_REGION"] = aws_region
+        Default dimensions for all metrics :
+        * InstanceID : value got from the instance metadata
+
+        :return: List of evaluated dimensions
+        """
+
+        evaluated_dimensions = [{
+            'Name': 'InstanceID',
+            'Value': utils.get_instance_metadata(data='meta-data/')['instance-id']
+        }]
+
+        for dimension in requested_dimensions:
+
+            try:
+                value = getattr(self, "get_dimension_{0}".format(dimension))
+                evaluated_dimensions.append(value)
+
+            except AttributeError:
+                LOG.error("Dimension %s is not implemented in the CloudWatch Agent", dimension)
+                break
+
+        return evaluated_dimensions
+
+    @staticmethod
+    @log_steps
+    def get_dimension_ECSCluster():
+        """
+        Get the name of the ECS Cluster this instance is part of.
+
+        :return: CloudWatch dimension named ECSCluster
+        """
+
+        ecs_cluster = 'Blabla'
+
+        return {'ECSCluster' : ecs_cluster}
+
+    @staticmethod
+    @log_steps
+    def match_metrics(requested_metrics, available_scripts, scripts_path):
+        """
+        Match requested metrics with available scripts on this agent.
+        Return a dict of metrics to be evaluated.
+
+        Notes :
+          * matches are made in lower cases to have case insensitive behaviour
+          * File extension is not taken in account for matching names
+
+        :param requested_metrics: Dict of metrics requested for this agent.
+        :param available_scripts: List of scripts found on this agent.
+        :param scripts_path: Absolute path to the script directory.
+        :return: Dict of metrics which have a script available.
+        """
+
+        metrics = {}
+
+        for metric_name, metric_spec in requested_metrics.iteritems():
+
+            found = False
+
+            metric_script_type = metric_spec['type'].lower()
+
+            # Search in scripts
+            for script in available_scripts:
+
+                if script.lower().split('.')[0] == metric_script_type:
+                    metric_spec['script'] = "{0}/{1}".format(scripts_path, script)
+                    metrics[metric_name] = metric_spec
+
+                    found = True
+                    break
+
+            if not found:
+                LOG.error("Requested metric script %s was not found in %s", metric_script_type, scripts_path)
+
+        return metrics
 
     @log_steps
     def push_cloudwatch(self, request):
@@ -188,6 +223,18 @@ class CWAgent(object):
         else:
             LOG.error('No metrics data to send !')
 
+    @staticmethod
+    @log_steps
+    def set_aws_region():
+        """
+        Set an environment variable AWS_DEFAULT_REGION with the name of the AWS Region got from instance metadata.
+        :return: None
+        """
+        aws_region = utils.get_instance_metadata(data='meta-data/placement/')['availability-zone'][:-1]
+        LOG.debug("AWS Region : %s", aws_region)
+
+        os.environ["AWS_DEFAULT_REGION"] = aws_region
+
     @log_steps
     def run(self):
         """
@@ -196,13 +243,16 @@ class CWAgent(object):
 
         LOG.info('New run of CloudWatch Agent')
 
-        metrics_path = "{0}/metrics.d".format(os.path.dirname(os.path.realpath(__file__)))
-        available_scripts = [f for f in os.listdir(metrics_path) if os.path.isfile(os.path.join(metrics_path, f))]
+        scripts_path = "{0}/metrics.d".format(os.path.dirname(os.path.realpath(__file__)))
+        available_scripts = [f for f in os.listdir(scripts_path) if os.path.isfile(os.path.join(scripts_path, f))]
 
         LOG.debug("Found scripts : {0}".format(available_scripts))
 
+        # Match requested metrics vs available scripts
+        available_metrics = self.match_metrics(self.metrics, available_scripts, scripts_path)
+
         # Execute all matches
-        cloudwatch_request = self.run_metric_scripts(metrics_path, available_scripts)
+        cloudwatch_request = self.evaluate_metrics(available_metrics)
         self.set_aws_region()
 
         try:
