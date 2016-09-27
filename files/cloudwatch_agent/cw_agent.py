@@ -54,11 +54,16 @@ class CWAgent(object):
         :param metrics:       Dict with requested monitoring metrics
         """
 
+        # Related to metric evaluation
         self.metrics = metrics['metrics']
         self.namespace = metrics['namespace']
 
+        # Manage log level
         if debug:
             LOG.setLevel(logging.DEBUG)
+
+        # For statistics
+        self.evaluated_metric_count = 0
 
         # Get handles on AWS clients
         self.set_aws_region()
@@ -118,16 +123,23 @@ class CWAgent(object):
                     # Manage result type
                     if metric_spec['unit'] == 'None':
                         metric_result['Value'] = stdout
+
                     else:
                         metric_result['Value'] = float(stdout)
 
-                        # Manage dimensions
-                        requested_dimensions = metric_spec.get('dimensions', [])
-                        LOG.debug("Requested dimensions : %s", requested_dimensions)
+                    # Manage dimensions
+                    requested_dimensions = metric_spec.get('dimensions', [])
+                    LOG.debug("Requested dimensions : %s", requested_dimensions)
 
-                        metric_result['Dimensions'] = self.get_metric_dimensions(requested_dimensions)
+                    # Add a metric result for each dimension for statistics aggregation in CloudWatch
+                    for dimension in self.get_metric_dimensions(requested_dimensions):
 
-                        metrics_values.append(metric_result)
+                        # Shallow copy required to avoid replacement of 'Dimensions' on all metric_result references
+                        metric_result['Dimensions'] = [dimension]
+                        metrics_values.append(metric_result.copy())
+
+                    # Used for statistics
+                    self.evaluated_metric_count += 1
 
             except Exception:
                 LOG.exception("Error when executing metric script '%s'", script_call)
@@ -305,8 +317,11 @@ class CWAgent(object):
             LOG.critical(e)
 
         # Statistics
+
+        pushed_metrics = [cloudwatch_request]
+
         LOG.info("CloudWatch agent statistics : %s/%s (Pushed metrics / Requested metrics)",
-                 len(cloudwatch_request),
+                 self.evaluated_metric_count,
                  len(self.metrics))
 
 
