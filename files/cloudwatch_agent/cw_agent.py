@@ -59,6 +59,14 @@ class CWAgent(object):
         if debug:
             LOG.setLevel(logging.DEBUG)
 
+        # Get handles on AWS clients
+        self.set_aws_region()
+        self.ec2 = boto3.resource('ec2')
+        self.cloudwatch = boto3.resource('cloudwatch')
+
+        self.instance_id = utils.get_instance_metadata(data='meta-data/')['instance-id']
+
+
     def log_steps(func):
 
         def do_log_steps(*args, **kwargs):
@@ -111,7 +119,9 @@ class CWAgent(object):
                         metric_result['Value'] = float(stdout)
 
                         # Manage dimensions
-                        requested_dimensions = getattr(metric_spec, 'dimensions', [])
+                        requested_dimensions = metric_spec.get('dimensions', [])
+                        LOG.debug("Requested dimensions : %s", requested_dimensions)
+
                         metric_result['Dimensions'] = self.get_metric_dimensions(requested_dimensions)
 
                         metrics_values.append(metric_result)
@@ -135,13 +145,17 @@ class CWAgent(object):
 
         evaluated_dimensions = [{
             'Name': 'InstanceID',
-            'Value': utils.get_instance_metadata(data='meta-data/')['instance-id']
+            'Value': self.instance_id
         }]
 
         for dimension in requested_dimensions:
 
+            dimension_evaluator = "get_dimension_{0}".format(dimension)
+
+            LOG.debug("Looking for %s", dimension_evaluator)
+
             try:
-                value = getattr(self, "get_dimension_{0}".format(dimension))
+                value = getattr(self, dimension_evaluator)()
                 evaluated_dimensions.append(value)
 
             except AttributeError:
@@ -149,6 +163,23 @@ class CWAgent(object):
                 break
 
         return evaluated_dimensions
+
+    @log_steps
+    def get_dimension_AutoScalingGroup(self):
+        """
+        Get the name of the AutoScalingGroup managing this instance.
+
+        :return: CloudWatch dimension named AutoScalingGroup
+        """
+
+        instance = self.ec2.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['running']},
+                                                      {'Name': 'instance-id', 'Values': [self.instance_id]}
+                                                      ]
+                                             )
+
+        autoscaling_group = 'Blabla'
+
+        return {'AutoScalingGroup': autoscaling_group}
 
     @staticmethod
     @log_steps
@@ -216,9 +247,8 @@ class CWAgent(object):
             LOG.debug("Metrics values to push : %s", request)
 
             try:
-                cloudwatch = boto3.client('cloudwatch')
-                cloudwatch.put_metric_data(Namespace=self.namespace,
-                                           MetricData=request)
+                self.cloudwatch.put_metric_data(Namespace=self.namespace,
+                                                MetricData=request)
 
             except botocore.exceptions.BotoCoreError as e:
                 LOG.critical(e)
@@ -257,7 +287,6 @@ class CWAgent(object):
 
         # Execute all matches
         cloudwatch_request = self.evaluate_metrics(available_metrics)
-        self.set_aws_region()
 
         try:
             self.push_cloudwatch(cloudwatch_request)
