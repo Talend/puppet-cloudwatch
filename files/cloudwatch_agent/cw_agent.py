@@ -20,6 +20,7 @@ from boto import utils
 import botocore
 import boto3
 from docopt import docopt
+import json
 import logging.config
 import os
 import shlex
@@ -61,11 +62,13 @@ class CWAgent(object):
 
         # Get handles on AWS clients
         self.set_aws_region()
-        self.ec2 = boto3.resource('ec2')
-        self.cloudwatch = boto3.resource('cloudwatch')
+        self.ec2 = boto3.client('ec2')
+        self.cloudwatch = boto3.client('cloudwatch')
 
         self.instance_id = utils.get_instance_metadata(data='meta-data/')['instance-id']
+        self.instance_user_data = json.loads(utils.get_instance_userdata())
 
+        LOG.debug("User Data : %s", self.instance_user_data)
 
     def log_steps(func):
 
@@ -126,8 +129,8 @@ class CWAgent(object):
 
                         metrics_values.append(metric_result)
 
-            except Exception as e:
-                LOG.exception("Error during metric script execution : %s", e)
+            except Exception:
+                LOG.exception("Error when executing metric script '%s'", script_call)
 
         return metrics_values
 
@@ -156,10 +159,14 @@ class CWAgent(object):
 
             try:
                 value = getattr(self, dimension_evaluator)()
-                evaluated_dimensions.append(value)
+
+                if value:
+                    evaluated_dimensions.append(value)
+                else:
+                    LOG.error("No value found for dimension %s", dimension)
 
             except AttributeError:
-                LOG.error("Dimension %s is not implemented in the CloudWatch Agent", dimension)
+                LOG.exception("Dimension %s is not implemented in the CloudWatch Agent", dimension)
                 break
 
         return evaluated_dimensions
@@ -172,27 +179,30 @@ class CWAgent(object):
         :return: CloudWatch dimension named AutoScalingGroup
         """
 
-        instance = self.ec2.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['running']},
-                                                      {'Name': 'instance-id', 'Values': [self.instance_id]}
-                                                      ]
-                                             )
+        autoscaling_group = 'NOT IMPLEMENTED'
 
-        autoscaling_group = 'Blabla'
+        return {'Name': 'AutoScalingGroup',
+                'Value': autoscaling_group}
 
-        return {'AutoScalingGroup': autoscaling_group}
-
-    @staticmethod
     @log_steps
-    def get_dimension_ECSCluster():
+    def get_dimension_ECSCluster(self):
         """
         Get the name of the ECS Cluster this instance is part of.
 
         :return: CloudWatch dimension named ECSCluster
         """
 
-        ecs_cluster = 'Blabla'
+        dimension = {}
 
-        return {'ECSCluster': ecs_cluster}
+        try:
+            ecs_cluster = self.instance_user_data['cloud_formation']['ecs_cluster_name']
+            dimension = {'Name': 'ECSCluster',
+                         'Value': ecs_cluster}
+
+        except KeyError:
+            LOG.exception("ECS Cluster name cannot be found in instance userdata")
+
+        return dimension
 
     @staticmethod
     @log_steps
