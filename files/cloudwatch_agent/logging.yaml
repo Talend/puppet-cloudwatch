@@ -7,7 +7,7 @@ logging:
       handlers: [logfile]
 
     CWAgent:
-      level: INFO
+      level: DEBUG
       handlers: [logfile]
 
   handlers:
