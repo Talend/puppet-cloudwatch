@@ -178,19 +178,6 @@ class CWAgent(object):
         return evaluated_dimensions
 
     @log_steps
-    def get_dimension_AutoScalingGroup(self):
-        """
-        Get the name of the AutoScalingGroup managing this instance.
-
-        :return: CloudWatch dimension named AutoScalingGroup
-        """
-
-        autoscaling_group = 'NOT IMPLEMENTED'
-
-        return {'Name': 'AutoScalingGroup',
-                'Value': autoscaling_group}
-
-    @log_steps
     def get_dimension_ECSCluster(self):
         """
         Get the name of the ECS Cluster this instance is part of.
