@@ -31,14 +31,8 @@ import yaml
 # Configuration & logging
 # -----------------------
 
-script_dir = os.path.dirname(os.path.realpath(__file__))
-
-conf_file = "{0}/logging.yaml".format(script_dir)
-configuration = yaml.load(open(conf_file))
-
-log_config = configuration['logging']
-logging.config.dictConfig(log_config)
-
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+CONFIGURATION_FILE = "{0}/logging.yaml".format(SCRIPT_DIR)
 LOG = logging.getLogger('CWAgent')
 
 
@@ -330,6 +324,11 @@ if __name__ == '__main__':
 
     LOG.info('---- CloudWatch Agent - START ----')
     LOG.debug("Arguments : %s", arguments)
+
+    # Configuration
+    configuration = yaml.load(open(CONFIGURATION_FILE))
+    log_config = configuration['logging']
+    logging.config.dictConfig(log_config)
 
     try:
         metrics_file = open(arguments['--metrics'])
