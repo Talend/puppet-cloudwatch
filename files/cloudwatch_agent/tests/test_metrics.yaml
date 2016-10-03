@@ -1,0 +1,35 @@
+---
+  metrics:
+      DiskSpace:
+        type: diskspace
+        params: "-f /"
+        unit: Percent
+        description: "Percentage of used disk space for root filesystem"
+        statistic: Average
+        period: 300
+        evaluationperiods: 10
+        threshold: 1000
+        comparisonoperator: GreaterThanThreshold
+      Memory:
+        type: memory
+        params: ""
+        unit: Megabytes
+        description: "Memory available on the system in MB."
+        statistic: Average
+        period: 300
+        evaluationperiods: 10
+        threshold: 1000
+        comparisonoperator: GreaterThanThreshold
+      NumberOfRunningContainers:
+        type: dockerinfo
+        params: "-f Running"
+        unit: Count
+        description: "Test if a Docker Agent is running. 0 if an agent is running - 1 instead."
+        statistic: Maximum
+        period: 300
+        evaluationperiods: 3
+        threshold: 100
+        comparisonoperator: GreaterThanThreshold
+        dimensions:
+          - ECSCluster
+  namespace: testProfile/testRole/testEnv/testSubEnv

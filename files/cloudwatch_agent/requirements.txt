@@ -1,7 +1,10 @@
 boto
 boto3
 docopt
+mock
 PyYAML
 pytest
+pytest-mock
+pytest-catchlog
 pep8
 tox
