@@ -18,7 +18,7 @@ import json
 import logging
 import os
 import pytest
-# import subprocess
+import subprocess
 import yaml
 
 from ..cw_agent import CWAgent
@@ -38,6 +38,8 @@ class TestCWAgent(object):
     """
 
     metrics = yaml.load(open(TEST_METRICS_FILE))
+    script_path = '/test/metrics.d'
+    default_float_value = 42.0
 
     # -----------------------
     # Fixtures for unit tests
@@ -76,26 +78,89 @@ class TestCWAgent(object):
 
         return CWAgent(self.metrics)
 
+    @pytest.fixture()
+    def expected_metrics(self):
+        """
+        Provide a test set of expected metrics for match_metrics().
+
+        Test set :
+        * all metrics from test_metrics.yaml
+        * except the NumberOfRunningContainers (left behind for testing the bahaviour of the agent)
+        * enriched with the metric script path
+        """
+
+        expected_metrics = self.metrics['metrics'].copy()
+        del expected_metrics['NumberOfRunningContainers']
+
+        for _, metric_spec in expected_metrics.iteritems():
+            metric_spec['script'] = "{0}/{1}".format(self.script_path, metric_spec['type'])
+
+        return expected_metrics
+
+    @pytest.fixture()
+    def expected_results(self):
+        """
+        Provide a test set of expected results for evaluate_metrics():
+
+        Test set :
+        * Cloudwatch Data format for all metrics from test_metrics.yaml
+        """
+
+        return [{'Unit': 'Percent',
+                 'MetricName': 'DiskSpace',
+                 'Value': 42.0,
+                 'Dimensions': [{'Value': 'fake-instance-id', 'Name': 'InstanceID'}]},
+                {'Unit': 'Count',
+                 'MetricName': 'NumberOfRunningContainers',
+                 'Value': 42.0,
+                 'Dimensions': [{'Value': 'fake-instance-id', 'Name': 'InstanceID'}]},
+                {'Unit': 'Count',
+                 'MetricName': 'NumberOfRunningContainers',
+                 'Value': 42.0,
+                 'Dimensions': [{'Value': u'test_cluster', 'Name': 'ECSCluster'}]},
+                {'Unit': 'Megabytes',
+                 'MetricName': 'Memory',
+                 'Value': 42.0,
+                 'Dimensions': [{'Value': 'fake-instance-id', 'Name': 'InstanceID'}]
+                 }
+                ]
+
     # ----------
     # Unit tests
     # ----------
 
-    """
-    def test_evaluate_metrics(self, good_agent, caplog, mocker):
-
+    def test_evaluate_metrics(self, good_agent, caplog, mocker, expected_results):
+        """
         Test the evaluate_metrics() method.
 
         :param good_agent: CloudWatch Agent (provided by local fixture)
         :param caplog: Capture log (provided by pytest-capturelog fixture)
+        :param mocker: Mock wrapper (provided by pytest-mock fixture)
+        :param expected_results: Test set of expected results (provided by local fixture)
+        """
 
-
-        # Mock subprocess.Popen()
+        # Mock subprocess.Popen() & stuff
         mocked_subprocess = mocker.patch.object(subprocess, 'Popen', autospec=True)
 
-        evaluated_metrics = good_agent.evaluate_metrics()
-    """
+        good_process_mock = mocker.Mock()
+        good_attrs = {'communicate.return_value': ('42', 'error'),
+                      'returncode': 0}
+        good_process_mock.configure_mock(**good_attrs)
 
-    def test_match_metrics(self, good_agent, caplog):
+        mocked_subprocess.return_value = good_process_mock
+
+        # Prepare test metrics
+        metrics = self.metrics['metrics'].copy()
+
+        for _, metric_spec in metrics.iteritems():
+            metric_spec['script'] = "{0}/{1}".format(self.script_path, metric_spec['type'])
+
+        evaluated_results = good_agent.evaluate_metrics(metrics)
+
+        for result in evaluated_results:
+            assert result in expected_results
+
+    def test_match_metrics(self, good_agent, caplog, expected_metrics):
         """
         Test the match_metrics() method :
         * some requested metrics are matched : they must be enriched
@@ -103,17 +168,11 @@ class TestCWAgent(object):
 
         :param good_agent: CloudWatch Agent (provided by local fixture)
         :param caplog: Capture log (provided by pytest-capturelog fixture)
+        :param expected_metrics: Test set of expected metrics (provided by local fixture)
         """
-        script_path = '/test/metrics.d'
 
         # Leave "NumberOfRunningContainers / dockerinfo" metric behind
-        available_metrics = good_agent.match_metrics(good_agent.metrics, ['diskspace', 'memory'], script_path)
-
-        expected_metrics = self.metrics['metrics'].copy()
-        del expected_metrics['NumberOfRunningContainers']
-
-        for _, metric_spec in expected_metrics.iteritems():
-            metric_spec['script'] = "{0}/{1}".format(script_path, metric_spec['type'])
+        available_metrics = good_agent.match_metrics(good_agent.metrics, ['diskspace', 'memory'], self.script_path)
 
         # Search for an ERROR message for dockerinfo metric
         assert [record
@@ -136,17 +195,11 @@ class TestCWAgent(object):
         assert dimension == expected
 
     """
-    def test_evaluate_metrics(self):
-        assert 1== 1
-
     def test_get_metric_dimensions(self):
-        assert 1== 1
 
+    def test_push_cloudwatch
 
+    def test_set_aws_region
 
-    test_push_cloudwatch
-
-    test_set_aws_region
-
-    test_run
+    def test_run
     """
