@@ -18,6 +18,7 @@ import json
 import logging
 import os
 import pytest
+import subprocess
 import yaml
 
 from ..cw_agent import CWAgent
@@ -81,7 +82,17 @@ class TestCWAgent(object):
     # ----------
 
     """
-    def test_evaluate_metrics(self, good_agent):
+    def test_evaluate_metrics(self, good_agent, caplog, mocker):
+
+        Test the evaluate_metrics() method.
+
+        :param good_agent: CloudWatch Agent (provided by local fixture)
+        :param caplog: Capture log (provided by pytest-capturelog fixture)
+
+
+        # Mock subprocess.Popen()
+        mocked_subprocess = mocker.patch.object(subprocess, 'Popen', autospec=True)
+
         evaluated_metrics = good_agent.evaluate_metrics()
     """
 
