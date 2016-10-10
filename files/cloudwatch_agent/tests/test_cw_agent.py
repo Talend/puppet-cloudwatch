@@ -249,6 +249,32 @@ class TestCWAgent(object):
 
         assert dimension == expected
 
+    def test_push_cloudwatch(self, good_agent, caplog):
+        """
+        Test the push_cloudwatch() method.
+
+        The AWS CloudWatch client is already mocked in the CWAgent used for tests (good_agent).
+
+        :param good_agent: CloudWatch Agent (provided by local fixture)
+        :param caplog: Capture log (provided by pytest-capturelog fixture)
+        """
+
+        fake_request = 'FakeRequest'
+
+        good_agent.push_cloudwatch(fake_request)
+
+        # Check that put_metric_data was called
+        good_agent.cloudwatch.put_metric_data.assert_called_once_with(Namespace=good_agent.namespace,
+                                                                      MetricData=fake_request)
+
+        # Check error message in case of wrong request
+        good_agent.push_cloudwatch('')
+        assert [record
+                for record
+                in caplog.records
+                if record.levelname == 'ERROR'
+                and 'No metrics data to send !' in record.message]
+
     def test_set_aws_region(self, good_agent, mocker):
         """
         Test the set_aws_region() method.
@@ -257,15 +283,15 @@ class TestCWAgent(object):
         :param mocker: Mock wrapper (provided by pytest-mock fixture)
         """
 
+        # Mock the instance metadata
         mocked_metadata = mocker.patch.object(utils, 'get_instance_metadata')
         mocked_metadata.return_value = {'availability-zone': self.default_test_aws_region}
 
         good_agent.set_aws_region()
 
+        # Check environment variable
         assert os.environ["AWS_DEFAULT_REGION"] == self.default_test_aws_region[:-1]
 
     """
-    def test_push_cloudwatch
-
     def test_run
     """
