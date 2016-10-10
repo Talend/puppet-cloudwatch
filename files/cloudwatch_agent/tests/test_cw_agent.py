@@ -39,7 +39,9 @@ class TestCWAgent(object):
 
     metrics = yaml.load(open(TEST_METRICS_FILE))
     script_path = '/test/metrics.d'
+
     default_float_value = 42.0
+    default_dimension_value = 'FakeValue'
 
     # -----------------------
     # Fixtures for unit tests
@@ -79,14 +81,29 @@ class TestCWAgent(object):
         return CWAgent(self.metrics)
 
     @pytest.fixture()
+    def expected_dimensions(self, good_agent):
+        """
+        Provide a test set of expected dimensions for get_metric_dimensions().
+
+        :return: Test set as a list of dict :
+                    * Name of the dimension
+                    * Fake value for this dimension
+        """
+
+        return [{'Name': 'InstanceID',
+                 'Value': good_agent.instance_id},
+                {'Name': 'ImplementedDimension',
+                 'Value': self.default_dimension_value}]
+
+    @pytest.fixture()
     def expected_metrics(self):
         """
         Provide a test set of expected metrics for match_metrics().
 
-        Test set :
-        * all metrics from test_metrics.yaml
-        * except the NumberOfRunningContainers (left behind for testing the bahaviour of the agent)
-        * enriched with the metric script path
+        :return: Test set :
+                    * all metrics from test_metrics.yaml
+                    * except the NumberOfRunningContainers (left behind for testing the bahaviour of the agent)
+                    * enriched with the metric script path
         """
 
         expected_metrics = self.metrics['metrics'].copy()
@@ -157,6 +174,7 @@ class TestCWAgent(object):
 
         evaluated_results = good_agent.evaluate_metrics(metrics)
 
+        # Check evaluated results
         for result in evaluated_results:
             assert result in expected_results
 
@@ -174,20 +192,56 @@ class TestCWAgent(object):
         # Leave "NumberOfRunningContainers / dockerinfo" metric behind
         available_metrics = good_agent.match_metrics(good_agent.metrics, ['diskspace', 'memory'], self.script_path)
 
-        # Search for an ERROR message for dockerinfo metric
+        # Check not found metrics (as log messages)
         assert [record
                 for record
                 in caplog.records
                 if record.levelname == 'ERROR'
                 and 'dockerinfo' in record.message]
 
-        assert available_metrics == expected_metrics
+        # Check found metrics
+        for metric in available_metrics:
+            assert metric in expected_metrics
+
+    def test_get_metric_dimensions(self, good_agent, caplog, mocker, expected_dimensions):
+        """
+        Test get_metric_dimensions() method.
+
+        Test one implemented dimension & one unimplemented.
+
+        :param good_agent: CloudWatch Agent (provided by local fixture)
+        :param caplog: Capture log (provided by pytest-capturelog fixture)
+        :param mocker: Mock wrapper (provided by pytest-mock fixture)
+        :param expected_dimensions: Test set of expected dimensions (provided by local fixture)
+        """
+
+        # Fake the implementation of 'ImplementedDimension'
+        def get_dimension_ImplementedDimension():
+            return {'Name': 'ImplementedDimension', 'Value': self.default_dimension_value}
+
+        good_agent.get_dimension_ImplementedDimension = get_dimension_ImplementedDimension
+
+        LOG.info("Agent : %s", dir(good_agent))
+
+        requested_dimensions = ['ImplementedDimension', 'UnimplementedDimension']
+        evaluated_dimensions = good_agent.get_metric_dimensions(requested_dimensions)
+
+        # Check unevaluated dimensions (as log messages)
+        assert [record
+                for record
+                in caplog.records
+                if record.levelname == 'ERROR'
+                and 'Dimension UnimplementedDimension is not implemented in the CloudWatch Agent' in record.message]
+
+        # Check evaluated dimensions
+        for dimension in evaluated_dimensions:
+            assert dimension in expected_dimensions
 
     def test_get_dimension_ECSCluster(self, good_agent):
         """
         Test the get_dimension_ECSCluster() method.
 
-        :param good_agent: CWAgent provided through fixture.
+        :param good_agent: CloudWatch Agent (provided by local fixture)
         """
         dimension = good_agent.get_dimension_ECSCluster()
         expected = {'Name': 'ECSCluster', 'Value': 'test_cluster'}
@@ -195,7 +249,7 @@ class TestCWAgent(object):
         assert dimension == expected
 
     """
-    def test_get_metric_dimensions(self):
+
 
     def test_push_cloudwatch
 
