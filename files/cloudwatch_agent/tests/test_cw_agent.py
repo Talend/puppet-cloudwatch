@@ -253,7 +253,9 @@ class TestCWAgent(object):
         """
         Test the push_cloudwatch() method.
 
-        The AWS CloudWatch client is already mocked in the CWAgent used for tests (good_agent).
+        Test with either a regular request and an empty one.
+
+        Note : the AWS CloudWatch client is already mocked in the CWAgent used for tests (good_agent).
 
         :param good_agent: CloudWatch Agent (provided by local fixture)
         :param caplog: Capture log (provided by pytest-capturelog fixture)
@@ -292,6 +294,28 @@ class TestCWAgent(object):
         # Check environment variable
         assert os.environ["AWS_DEFAULT_REGION"] == self.default_test_aws_region[:-1]
 
-    """
-    def test_run
-    """
+    def test_run(self, good_agent, mocker):
+        """
+        Test the run() method.
+
+        :param good_agent: CloudWatch Agent (provided by local fixture)
+        :param mocker: Mock wrapper (provided by pytest-mock fixture)
+        """
+
+        # Mock external method calls
+        os = mocker.MagicMock()
+        os.listdir.return_value = ['memory.sh']
+        os.path.isfile.return_value = True
+        os.path.dirname.return_value = '/test'
+
+        # Mock internal method calls
+        good_agent.match_metrics = mocker.MagicMock()
+        good_agent.evaluate_metrics = mocker.MagicMock()
+        good_agent.push_cloudwatch = mocker.MagicMock()
+
+        good_agent.run()
+
+        # Check that calls were made
+        good_agent.match_metrics.assert_called_once()
+        good_agent.evaluate_metrics.assert_called_once()
+        good_agent.push_cloudwatch.assert_called_once()
