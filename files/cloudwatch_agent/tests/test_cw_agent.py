@@ -2,12 +2,13 @@
 # coding: utf8
 
 """
-Test suite for the CLoudWatch Agent.
+Test suite for the CloudWatch Agent.
 
 Uses the following tools :
 * pytest : test framework
 * mock : to mock boto & other external dependencies
 * pytest-mock : wrapper to provide mock API in pytest through the "mocker" fixture
+* pytest-catchlog : catches all output (logs, stdout & stderr) from tests and display them in test results.
 """
 
 import boto3
@@ -36,6 +37,10 @@ class TestCWAgent(object):
     """
 
     metrics = yaml.load(open(TEST_METRICS_FILE))
+
+    # -----------------------
+    # Fixtures for unit tests
+    # -----------------------
 
     @pytest.fixture()
     def good_agent(self, mocker):
@@ -71,13 +76,67 @@ class TestCWAgent(object):
 
         return CWAgent(self.metrics)
 
+    # ----------
+    # Unit tests
+    # ----------
+
+    """
+    def test_evaluate_metrics(self, good_agent):
+        evaluated_metrics = good_agent.evaluate_metrics()
+    """
+
+    def test_match_metrics(self, good_agent, caplog):
+        """
+        Test the match_metrics() method :
+        * some requested metrics are matched : they must be enriched
+        * some requested metrics are left unmatched : expecting an error message in logging.
+
+        :param good_agent: CloudWatch Agent (provided by local fixture)
+        :param caplog: Capture log (provided by pytest-capturelog fixture)
+        """
+        script_path = '/test/metrics.d'
+
+        # Leave "NumberOfRunningContainers / dockerinfo" metric behind
+        available_metrics = good_agent.match_metrics(good_agent.metrics, ['diskspace', 'memory'], script_path)
+
+        expected_metrics = self.metrics['metrics'].copy()
+        del expected_metrics['NumberOfRunningContainers']
+
+        for _, metric_spec in expected_metrics.iteritems():
+            metric_spec['script'] = "{0}/{1}".format(script_path, metric_spec['type'])
+
+        # Search for an ERROR message for dockerinfo metric
+        assert [record
+                for record
+                in caplog.records
+                if record.levelname == 'ERROR'
+                and 'dockerinfo' in record.message]
+
+        assert available_metrics == expected_metrics
+
     def test_get_dimension_ECSCluster(self, good_agent):
         """
         Test the get_dimension_ECSCluster() method.
 
-        :param good_agent:
+        :param good_agent: CWAgent provided through fixture.
         """
         dimension = good_agent.get_dimension_ECSCluster()
         expected = {'Name': 'ECSCluster', 'Value': 'test_cluster'}
 
         assert dimension == expected
+
+    """
+    def test_evaluate_metrics(self):
+        assert 1== 1
+
+    def test_get_metric_dimensions(self):
+        assert 1== 1
+
+
+
+    test_push_cloudwatch
+
+    test_set_aws_region
+
+    test_run
+    """
