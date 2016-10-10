@@ -42,6 +42,7 @@ class TestCWAgent(object):
 
     default_float_value = 42.0
     default_dimension_value = 'FakeValue'
+    default_test_aws_region = 'test-region-3c'
 
     # -----------------------
     # Fixtures for unit tests
@@ -248,12 +249,23 @@ class TestCWAgent(object):
 
         assert dimension == expected
 
+    def test_set_aws_region(self, good_agent, mocker):
+        """
+        Test the set_aws_region() method.
+
+        :param good_agent: CloudWatch Agent (provided by local fixture)
+        :param mocker: Mock wrapper (provided by pytest-mock fixture)
+        """
+
+        mocked_metadata = mocker.patch.object(utils, 'get_instance_metadata')
+        mocked_metadata.return_value = {'availability-zone': self.default_test_aws_region}
+
+        good_agent.set_aws_region()
+
+        assert os.environ["AWS_DEFAULT_REGION"] == self.default_test_aws_region[:-1]
+
     """
-
-
     def test_push_cloudwatch
-
-    def test_set_aws_region
 
     def test_run
     """
