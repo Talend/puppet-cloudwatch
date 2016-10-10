@@ -8,7 +8,7 @@
     * [Setup requirements](#setup-requirements)
     * [Beginning with cloudwatch](#beginning-with-cloudwatch)
 1. [Usage - Configuration options and additional functionality](#usage)
-1. [Tests - How to run tests for this module](#tsage)
+1. [Tests - How to run tests for this module](#tests)
 1. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
 
 
