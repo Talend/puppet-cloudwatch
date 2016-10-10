@@ -298,9 +298,6 @@ class CWAgent(object):
             LOG.critical(e)
 
         # Statistics
-
-        pushed_metrics = [cloudwatch_request]
-
         LOG.info("CloudWatch agent statistics : %s/%s (Pushed metrics / Requested metrics)",
                  self.evaluated_metric_count,
                  len(self.metrics))

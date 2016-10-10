@@ -18,7 +18,7 @@ import json
 import logging
 import os
 import pytest
-import subprocess
+# import subprocess
 import yaml
 
 from ..cw_agent import CWAgent
@@ -61,8 +61,7 @@ class TestCWAgent(object):
 
         mocked_userdata = mocker.patch.object(utils, 'get_instance_userdata')
 
-        test_instance_userdata = {'cloud_formation':
-                                      {'ecs_cluster_name': 'test_cluster'},
+        test_instance_userdata = {'cloud_formation': {'ecs_cluster_name': 'test_cluster'},
                                   't_facts': {
                                       't_dc': 'aws-us-east-1',
                                       't_role': 'ecs-resource',
