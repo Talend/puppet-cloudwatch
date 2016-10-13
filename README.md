@@ -8,6 +8,7 @@
     * [Setup requirements](#setup-requirements)
     * [Beginning with cloudwatch](#beginning-with-cloudwatch)
 1. [Usage - Configuration options and additional functionality](#usage)
+1. [Tests - How to run tests for this module](#tests)
 1. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
 
 
@@ -25,7 +26,7 @@ Running puppet-cloudwatch will do the following things on the instance :
     * Default sub-folder : '/opt/cloudwatch-agent/'
 * A script is set in Cron to run at a set interval all required metrics scripts
     * Default interval : every minutes
-* A sub-folder is created to store logs produec by the CloudWatch Agent
+* A sub-folder is created to store logs produced by the CloudWatch Agent
     * Default sub-folder : '/var/log/cloudwatch-agent/'
 
 ### Setup Requirements
@@ -105,6 +106,49 @@ cloudwatch::metrics:
     threshold         : 1000
     comparisonoperator: "GreaterThanThreshold"
 ```
+
+## Tests
+
+There are several tests for puppet-cloudwatch :
+
+* unit tests & acceptance tests for the Puppet module itself
+* unit tests for the CloudWatch Agent
+
+### Puppet module tests
+
+Unit tests are using rspec : they test the content of the Puppet manifest after compiling.
+
+Acceptance tests are using Kitchen (to launch either a local virtualbox or an EC2 instance) &
+serverspec (to describe how the instance should look like after running Puppet).
+
+* Launch unit tests :
+
+```bash
+bundle exec rake test
+```
+
+* Launch acceptance tests :
+
+```bash
+bundle exec rake kitchen:all
+```
+
+### CloudWatch Agent tests
+
+Unit tests for the CloudWatch Agent can be run with the following command :
+
+```bash
+tox
+```
+
+These tests are using :
+
+* tox : provide virtualenvs for each kind of tests & run them
+* flake8 : syntaxic verifications (pep8)
+* pytest : unit tests implemented in files/cloudwatch_agent/tests
+    * pytest-capturelog : provide log capturing feature with an associated fixture
+    * pytest-cov : coverage report for pytest
+    * pytest-mock : provide a wrapper for Mock as fixture for tests
 
 ## Reference
 

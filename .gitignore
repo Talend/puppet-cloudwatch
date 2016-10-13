@@ -11,5 +11,7 @@ spec/fixtures
 modules/
 build/
 coverage/
+.coverage
 .tox/
 *.pyc
+.cache
