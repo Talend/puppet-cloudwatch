@@ -147,12 +147,11 @@ class TestCWAgent(object):
     # Unit tests
     # ----------
 
-    def test_evaluate_metrics(self, good_agent, caplog, mocker, expected_results):
+    def test_evaluate_metrics(self, good_agent, mocker, expected_results):
         """
         Test the evaluate_metrics() method.
 
         :param good_agent: CloudWatch Agent (provided by local fixture)
-        :param caplog: Capture log (provided by pytest-capturelog fixture)
         :param mocker: Mock wrapper (provided by pytest-mock fixture)
         :param expected_results: Test set of expected results (provided by local fixture)
         """
@@ -204,7 +203,7 @@ class TestCWAgent(object):
         for metric in available_metrics:
             assert metric in expected_metrics
 
-    def test_get_metric_dimensions(self, good_agent, caplog, mocker, expected_dimensions):
+    def test_get_metric_dimensions(self, good_agent, caplog, expected_dimensions):
         """
         Test get_metric_dimensions() method.
 
@@ -212,7 +211,6 @@ class TestCWAgent(object):
 
         :param good_agent: CloudWatch Agent (provided by local fixture)
         :param caplog: Capture log (provided by pytest-capturelog fixture)
-        :param mocker: Mock wrapper (provided by pytest-mock fixture)
         :param expected_dimensions: Test set of expected dimensions (provided by local fixture)
         """
 
