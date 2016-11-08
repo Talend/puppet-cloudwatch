@@ -8,6 +8,8 @@ FORGE
     puppetlabs-concat (1.2.5)
       puppetlabs-stdlib (< 5.0.0, >= 3.2.0)
     puppetlabs-stdlib (4.12.0)
+    saz-sudo (3.0.6)
+      puppetlabs-stdlib (>= 2.3.0)
     stahnma-epel (1.2.2)
       puppetlabs-stdlib (>= 3.0.0)
 
@@ -33,5 +35,6 @@ DEPENDENCIES
   puppetlabs-aws (>= 0)
   puppetlabs-concat (~> 1.0)
   puppetlabs-stdlib (< 5.0.0, >= 1.0.0)
+  saz-sudo (= 3.0.6)
   stahnma-epel (~> 1.0)
 

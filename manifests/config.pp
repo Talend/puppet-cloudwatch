@@ -49,7 +49,7 @@ class cloudwatch::config {
     file_line { 'Set namespace':
       ensure => present,
       path   => $metrics_file_path,
-      line   => "  namespace: ${facts['puppet_role']}",
+      line   => "  namespace: ${::puppet_role}",
       match  => '^[[:space:]]*namespace:',
     }
   }
