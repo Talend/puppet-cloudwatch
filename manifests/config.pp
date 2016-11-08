@@ -33,21 +33,37 @@ class cloudwatch::config {
   $main_script_path        = "${cloudwatch::base_dir}/${cloudwatch::main_script_name}"
   $metrics_file_path       = "${cloudwatch::base_dir}/${cloudwatch::metrics_file}"
 
-  # Set the list of monitoring metrics + namespace of the instance from facts
+  # Set the list of monitoring metrics
   file { $metrics_file_path:
     ensure  => present,
     content => inline_template('<%= {"metrics" => scope["cloudwatch::metrics"]}.to_yaml %>'),
     require => File[$cloudwatch::base_dir],
-  } ->
-  file_line { 'Set namespace':
-    ensure => present,
-    path   => $metrics_file_path,
-    line   => "  namespace: ${::t_profile}/${::t_role}/${::t_environment}/${::t_subenv}",
-    match  => '^[[:space:]]*namespace:',
+  }
+
+  # Set a Cloudwatch namespace : depends on provided facts
+  #  * try talend-cloud-installer style first
+  #  * try tipaas-ops style
+
+  if $::puppet_role != undef {
+
+    file_line { 'Set namespace':
+      ensure => present,
+      path   => $metrics_file_path,
+      line   => "  namespace: ${facts['puppet_role']}",
+      match  => '^[[:space:]]*namespace:',
+    }
+  }
+  else {
+
+    file_line { 'Set namespace':
+      ensure => present,
+      path   => $metrics_file_path,
+      line   => "  namespace: ${::t_profile}/${::t_role}/${::t_environment}/${::t_subenv}",
+      match  => '^[[:space:]]*namespace:',
+    }
   }
 
   # Add "cloudwatch-agent" sudo rights (defined in Hiera) to existing sudoers.
-
   if ! defined(Class['::sudo']) {
     class { '::sudo':
       purge               => false,
