@@ -20,7 +20,7 @@ describe 'cloudwatch' do
 
   describe file('/opt/cloudwatch-agent/cw_agent.py') do
     it { should be_file }
-    it { should be_mode 744 }
+    it { should be_mode 755 }
     it { should be_owned_by 'cloudwatch-agent' }
   end
 
@@ -30,15 +30,15 @@ describe 'cloudwatch' do
     it { should be_owned_by 'cloudwatch-agent' }
   end
 
-  describe file('/opt/cloudwatch-agent/configuration.yaml') do
+  describe file('/opt/cloudwatch-agent/logging.yaml') do
     it { should be_file }
-    it { should be_mode 744 }
+    it { should be_mode 755 }
     it { should be_owned_by 'cloudwatch-agent' }
   end
 
   describe file('/opt/cloudwatch-agent/metrics.yaml') do
     it { should be_file }
-    it { should be_mode 744 }
+    it { should be_mode 644 }
     it { should be_owned_by 'cloudwatch-agent' }
   end
 
