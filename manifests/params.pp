@@ -10,7 +10,9 @@
 # * $logs_path          : Absolute path the directory where logs are written
 # * $main_script_name   : Name of the CloudWatch Agent main script
 # * $user               : Name of the user which executes the CloudWatch Agent
-# * $configuration_name : Name of the configuration file used by the CloudWatch Agent
+# * $configuration_file : Name of the configuration file used by the CloudWatch Agent
+# * $metrics            : List of Cloudwatch metrics provisioned for the node
+# * $namespace          : Cloudwatch namespace used to push this node's metrics
 #
 # Authors
 # -------
@@ -31,5 +33,6 @@ class cloudwatch::params (
   $configuration_file = 'configuration.yaml',
   $metrics_file       = 'metrics.yaml',
   $metrics            = [],
+  $namespace          = ''
 )
 {}
