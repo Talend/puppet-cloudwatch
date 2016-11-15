@@ -14,4 +14,4 @@ mod 'puppet-python',
   :git => 'https://github.com/mpdude/puppet-python.git',
   :ref => 'rename-pip-package'
 
-mod "saz/sudo", "3.0.6"
+mod "saz/sudo"
