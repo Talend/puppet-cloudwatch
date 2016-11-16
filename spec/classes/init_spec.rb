@@ -18,7 +18,6 @@ describe 'cloudwatch' do
     #######################
 
     it do
-      should contain_class('awscli')
       should contain_class('python')
     end
 

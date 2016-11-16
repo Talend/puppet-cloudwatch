@@ -56,7 +56,6 @@ class cloudwatch::install {
     virtualenv => present,
     dev        => present,
   }
-  -> class { '::awscli': }
 
   ###############################
   # Copy CloudWatch-Agent files #
