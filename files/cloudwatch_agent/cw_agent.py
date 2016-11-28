@@ -65,9 +65,6 @@ class CWAgent(object):
         self.cloudwatch = boto3.client('cloudwatch')
 
         self.instance_id = utils.get_instance_metadata(data='meta-data/')['instance-id']
-        self.instance_user_data = json.loads(utils.get_instance_userdata())
-
-        LOG.debug("User Data : %s", self.instance_user_data)
 
     def log_steps(func):
 
@@ -188,10 +185,13 @@ class CWAgent(object):
         dimension = {}
 
         try:
-            ecs_cluster = self.instance_user_data['cloud_formation']['ecs_cluster_name']
+            instance_user_data = json.loads(utils.get_instance_userdata())
+            ecs_cluster = instance_user_data['cloud_formation']['ecs_cluster_name']
             dimension = {'Name': 'ECSCluster',
                          'Value': ecs_cluster}
 
+        except ValueError:
+            LOG.exception("Instance User data are not in JSON format")
         except KeyError:
             LOG.exception("ECS Cluster name cannot be found in instance userdata")
 
