@@ -50,12 +50,7 @@ class cloudwatch::install {
   }
 
   # Manage Third Party tools
-  class { '::python':
-    version    => system,
-    pip        => present,
-    virtualenv => present,
-    dev        => present,
-  }
+  include '::python'
 
   ###############################
   # Copy CloudWatch-Agent files #
