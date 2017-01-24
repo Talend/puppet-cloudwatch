@@ -67,21 +67,18 @@ class cloudwatch::install {
   }
 
   # Set a dedicated virtual env with requirements
-  class { '::python':
-    version    => 'system',
-    pip        => 'present',
-    dev        => 'present',
-    virtualenv => 'present',
-  } ->
   exec { 'ensure vitualenv created before doing any pip updates':
     command => "/usr/bin/virtualenv ${cloudwatch::base_dir}/venv",
-    user    => $cloudwatch::user,
     creates => "${cloudwatch::base_dir}/venv",
+    require => Class['::python'],
   } ->
   exec { 'ensure pip updated before doing any other pip updates':
     command => "${cloudwatch::base_dir}/venv/bin/pip install --upgrade pip && /bin/touch /var/tmp/pip_update.lock",
-    user    => $cloudwatch::user,
     creates => '/var/tmp/pip_update.lock',
+  } ->
+  exec { 'chown for cloudwatch::base_dir':
+    command => "/usr/bin/chown -R ${$cloudwatch::user}:${$cloudwatch::user} ${cloudwatch::base_dir}",
+    require => User[$cloudwatch::user],
   } ->
   python::virtualenv { "${cloudwatch::base_dir}/venv":
     ensure       => present,
