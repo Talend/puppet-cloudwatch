@@ -15,7 +15,7 @@
 # Copyright
 # ---------
 #
-# Copyright 2016 Talend, unless otherwise noted.
+# Copyright 2017 Talend, unless otherwise noted.
 #
 class cloudwatch::install {
 
@@ -98,4 +98,5 @@ class cloudwatch::install {
     ensure => directory,
     mode   => '0755',
   }
+
 }
