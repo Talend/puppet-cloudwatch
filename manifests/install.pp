@@ -49,9 +49,6 @@ class cloudwatch::install {
     comment => 'User for CloudWatch Agent',
   }
 
-  # Manage Third Party tools
-  include '::python'
-
   ###############################
   # Copy CloudWatch-Agent files #
   ###############################
@@ -70,6 +67,22 @@ class cloudwatch::install {
   }
 
   # Set a dedicated virtual env with requirements
+  class { '::python':
+    version    => 'system',
+    pip        => 'present',
+    dev        => 'present',
+    virtualenv => 'present',
+  } ->
+  exec { 'ensure vitualenv created before doing any pip updates':
+    command => "/usr/bin/virtualenv ${cloudwatch::base_dir}/venv",
+    user    => $cloudwatch::user,
+    creates => "${cloudwatch::base_dir}/venv",
+  } ->
+  exec { 'ensure pip updated before doing any other pip updates':
+    command => "${cloudwatch::base_dir}/venv/bin/pip install --upgrade pip && /bin/touch /var/tmp/pip_update.lock",
+    user    => $cloudwatch::user,
+    creates => '/var/tmp/pip_update.lock',
+  } ->
   python::virtualenv { "${cloudwatch::base_dir}/venv":
     ensure       => present,
     version      => system,
