@@ -26,7 +26,7 @@
 # Copyright
 # ---------
 #
-# Copyright 2016 Talend, unless otherwise noted.
+# Copyright 2017 Talend, unless otherwise noted.
 #
 class cloudwatch (
 
@@ -42,4 +42,5 @@ class cloudwatch (
 
   contain (::cloudwatch::install, ::cloudwatch::config)
   Class['cloudwatch::install'] -> Class['cloudwatch::config']
+
 }

@@ -22,17 +22,18 @@
 # Copyright
 # ---------
 #
-# Copyright 2016 Talend, unless otherwise noted.
+# Copyright 2017 Talend.
 #
-class cloudwatch::params (
-  $base_dir           = '/opt/cloudwatch-agent',
-  $metrics_dir        = 'metrics.d',
-  $logs_path          = '/var/log/cloudwatch-agent',
-  $main_script_name   = 'cw_agent.py',
-  $user               = 'cloudwatch-agent',
-  $configuration_file = 'configuration.yaml',
-  $metrics_file       = 'metrics.yaml',
-  $metrics            = [],
+class cloudwatch::params {
+
+  $base_dir           = '/opt/cloudwatch-agent'
+  $metrics_dir        = 'metrics.d'
+  $logs_path          = '/var/log/cloudwatch-agent'
+  $main_script_name   = 'cw_agent.py'
+  $user               = 'cloudwatch-agent'
+  $configuration_file = 'configuration.yaml'
+  $metrics_file       = 'metrics.yaml'
+  $metrics            = []
   $namespace          = ''
-)
-{}
+
+}
