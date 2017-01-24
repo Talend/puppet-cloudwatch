@@ -3,7 +3,7 @@ FORGE
   specs:
     puppetlabs-concat (1.2.5)
       puppetlabs-stdlib (< 5.0.0, >= 3.2.0)
-    puppetlabs-stdlib (4.13.1)
+    puppetlabs-stdlib (4.15.0)
     saz-sudo (3.1.0)
       puppetlabs-stdlib (< 5.0.0, >= 2.3.0)
     stahnma-epel (1.2.2)
@@ -15,7 +15,7 @@ FORGE
 DEPENDENCIES
   puppetlabs-concat (~> 1.0)
   puppetlabs-stdlib (< 5.0.0, >= 1.0.0)
-  saz-sudo (>= 0)
+  saz-sudo (~> 3.0)
   stahnma-epel (~> 1.0)
-  stankevich-python (>= 0)
+  stankevich-python (~> 1.0)
 
