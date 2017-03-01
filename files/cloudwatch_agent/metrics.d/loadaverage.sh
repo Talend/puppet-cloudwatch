@@ -21,7 +21,7 @@ function usage {
 COMMAND_BC=$(which bc)
 LOAD1=$(cat /proc/loadavg | cut -d ' ' -f 1)
 NB_VCPU=$(cat /proc/cpuinfo |grep processor |tail -n1| cut -d ':' -f 2)
-POURCENT=$(${COMMAND_BC} <<< "scale = 10; ${LOAD1} / (${NB_VCPU} + 1)")
+PERCENT=$(${COMMAND_BC} <<< "scale = 2; ${LOAD1} / (${NB_VCPU} + 1) * 100")
 
-logger "CloudWatchMetric - loadaverage1min/NumberOfVCPU / ${POURCENT}"
-echo ${POURCENT}
+logger "CloudWatchMetric - loadaverage1min/NumberOfVCPU / ${PERCENT}"
+echo ${PERCENT}

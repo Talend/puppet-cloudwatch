@@ -17,8 +17,8 @@ COMMAND=$(which free)
 COMMAND_BC=$(which bc)
 USED=$(${COMMAND} -m | grep Mem | awk '{ print $3 }')
 TOTAL=$(${COMMAND} -m | grep Mem | awk '{ print $2 }')
-POURCENT=$(${COMMAND_BC} <<< "scale = 10; ${USED} / ${TOTAL}")
+PERCENT=$(${COMMAND_BC} <<< "scale = 2; ${USED} / ${TOTAL} * 100")
 
 
-logger "CloudWatchMetric - memory / ${POURCENT}"
-echo ${POURCENT}
+logger "CloudWatchMetric - memory / ${PERCENT}"
+echo ${PERCENT}
