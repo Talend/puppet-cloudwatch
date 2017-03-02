@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh
 
 # Shell script by CloudWatch Agent to get the percentage of used space on a filesystem.
 #

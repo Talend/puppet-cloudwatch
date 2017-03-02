@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh
 
 # Shell script by CloudWatch Agent to get Docker related informations.
 #

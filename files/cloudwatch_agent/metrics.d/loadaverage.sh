@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh
 
 # Shell script by CloudWatch Agent to get the percentage metric that represent
 # loadaverage during last minute depending to the number of cpu cores.
