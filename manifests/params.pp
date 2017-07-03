@@ -35,5 +35,6 @@ class cloudwatch::params {
   $metrics_file       = 'metrics.yaml'
   $metrics            = []
   $namespace          = ''
+  $minute             = '*/1'
 
 }

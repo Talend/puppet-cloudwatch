@@ -17,7 +17,9 @@
 #
 # Copyright 2017 Talend, unless otherwise noted.
 #
-class cloudwatch::config {
+class cloudwatch::config (
+    $minute = $cloudwatch::params::minute,
+) {
 
   ############
   # Defaults #
@@ -64,7 +66,7 @@ class cloudwatch::config {
     command     => "flock -n /tmp/cloudwatch-agent.lock ${cloudwatch::base_dir}/venv/bin/python ${main_script_path} \
 --metrics ${metrics_file_path} >/dev/null 2>&1",
     user        => $cloudwatch::user,
-    minute      => '*/1',
+    minute      => '*/${minute}',
     environment => ['HOME=/tmp', 'PATH=/usr/bin:/bin'],
     require     => File[$cloudwatch::base_dir],
   }

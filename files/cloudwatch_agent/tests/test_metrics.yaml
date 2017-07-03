@@ -32,4 +32,16 @@
         comparisonoperator: GreaterThanThreshold
         dimensions:
           - ECSCluster
+      NumberOfRunningContainers:
+        type: dockerinfo
+        params: "-f Running"
+        unit: Count
+        description: "Test if a Docker Agent is running. 0 if an agent is running - 1 instead."
+        statistic: Maximum
+        period: 300
+        evaluationperiods: 3
+        threshold: 100
+        comparisonoperator: GreaterThanThreshold
+        dimensions:
+          - ECSCluster
   namespace: testProfile/testRole/testEnv/testSubEnv

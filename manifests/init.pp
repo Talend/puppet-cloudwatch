@@ -37,6 +37,7 @@ class cloudwatch (
   $user             = $cloudwatch::params::user,
   $metrics          = $cloudwatch::params::metrics,
   $namespace        = $cloudwatch::params::namespace,
+  $minute           = $cloudwatch::params::minute,
 
 ) inherits cloudwatch::params {
 
