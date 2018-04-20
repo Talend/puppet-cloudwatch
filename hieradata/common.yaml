@@ -1,4 +1,7 @@
 ---
-python::virtualenv: 'present'
 python::pip: 'present'
 python::dev: 'present'
+
+'virtualenv':
+  ensure: 'installed'
+  provider: 'pip'
