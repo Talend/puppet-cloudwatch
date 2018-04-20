@@ -28,6 +28,12 @@ class cloudwatch::install {
   $pip_requirements   = "${cloudwatch::base_dir}/requirements.txt"
 
   ############
+  # Requires #
+  ############
+
+  require common::packages
+
+  ############
   # Defaults #
   ############
 

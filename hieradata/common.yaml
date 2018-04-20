@@ -2,6 +2,7 @@
 python::pip: 'present'
 python::dev: 'present'
 
-'virtualenv':
-  ensure: 'installed'
-  provider: 'pip'
+common_packages:
+  'virtualenv':
+    ensure: 'installed'
+    provider: 'pip'
