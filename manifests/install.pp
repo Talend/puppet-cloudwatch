@@ -68,7 +68,8 @@ class cloudwatch::install {
 
   # Set a dedicated virtual env with requirements
   exec { 'ensure vitualenv created before doing any pip updates':
-    command => "/bin/virtualenv ${cloudwatch::base_dir}/venv",
+    command => "virtualenv ${cloudwatch::base_dir}/venv",
+    path    => ["/bin", "/usr/bin", "/usr/local/bin"],
     creates => "${cloudwatch::base_dir}/venv",
     require => Class['::python'],
   } ->
