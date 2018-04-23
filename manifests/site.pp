@@ -39,6 +39,6 @@ Exec {
 # specified in the console for that node.
 node default {
   # This is where you can declare dynamic classes for all nodes.
-  include "cloudwatch::cloudwatch"
-  include "common::packages"
+  include ::common::packages
+  include ::cloudwatch
 }

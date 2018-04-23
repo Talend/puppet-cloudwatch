@@ -29,4 +29,4 @@ package { 'retries':
   ensure   => installed,
   provider => 'gem',
 } ->
-class { 'cloudwatch::cloudwatch': }
+class { '::cloudwatch': }
