@@ -88,9 +88,9 @@ class cloudwatch::install {
     require => User[$cloudwatch::user],
   } ->
   exec { 'install pip requirements.txt':
-    command => "pip install -r $pip_requirements",
+    command => "pip install -r ${pip_requirements}",
     path    => ['/bin', '/usr/bin', '/usr/local/bin'],
-    require => File[$pip_requirements]
+    require => File[$pip_requirements],
   }
 
   # Bootstrap CloudWatch Agent logs
