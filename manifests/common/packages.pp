@@ -1,13 +1,12 @@
 #
-# Installs hiera-defined common_packages
+# Installs common_packages
 #
 class common::packages {
 
-  #require ::pip
-
-  create_resources(
-    Package,
-    hiera_hash('common_packages', {})
-  )
+  ensure_packages({
+    'epel-release' => {ensure => 'present'},
+    'python2-pip'  => { ensure => 'present', require => Package['epel-release']},
+    'virtualenv' => {provider => 'pip', ensure => 'present'}
+  })
 
 }

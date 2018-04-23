@@ -1,8 +1,1 @@
 ---
-python::pip: 'present'
-python::dev: 'present'
-
-common_packages:
-  'virtualenv':
-    ensure: 'installed'
-    provider: 'pip'

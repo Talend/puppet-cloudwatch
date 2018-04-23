@@ -3,6 +3,7 @@ driver:
   name: vagrant
   customize:
     name: 'puppet-cloudwatch'
+    natdnshostresolver1: 'on'
 
 provisioner:
   name: puppet_apply

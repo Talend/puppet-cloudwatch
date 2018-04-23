@@ -8,14 +8,10 @@ FORGE
       puppetlabs-stdlib (< 5.0.0, >= 2.3.0)
     stahnma-epel (1.2.2)
       puppetlabs-stdlib (>= 3.0.0)
-    stankevich-python (1.18.2)
-      puppetlabs-stdlib (< 6.0.0, >= 4.6.0)
-      stahnma-epel (< 2.0.0, >= 1.2.2)
 
 DEPENDENCIES
   puppetlabs-concat (~> 1.0)
   puppetlabs-stdlib (< 5.0.0, >= 1.0.0)
   saz-sudo (~> 3.0)
   stahnma-epel (~> 1.0)
-  stankevich-python (~> 1.0)
 
