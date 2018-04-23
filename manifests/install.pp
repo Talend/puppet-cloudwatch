@@ -28,6 +28,12 @@ class cloudwatch::install {
   $pip_requirements   = "${cloudwatch::base_dir}/requirements.txt"
 
   ############
+  # Requires #
+  ############
+
+  require common::packages
+
+  ############
   # Defaults #
   ############
 
@@ -68,9 +74,10 @@ class cloudwatch::install {
 
   # Set a dedicated virtual env with requirements
   exec { 'ensure vitualenv created before doing any pip updates':
-    command => "/usr/bin/virtualenv ${cloudwatch::base_dir}/venv",
+    command => "virtualenv ${cloudwatch::base_dir}/venv",
+    path    => ["/bin", "/usr/bin", "/usr/local/bin"],
     creates => "${cloudwatch::base_dir}/venv",
-    require => Class['::python'],
+    require => Class['common::packages'],
   } ->
   exec { 'ensure pip updated before doing any other pip updates':
     command => "${cloudwatch::base_dir}/venv/bin/pip install --upgrade pip && /bin/touch /var/tmp/pip_update.lock",
@@ -80,14 +87,10 @@ class cloudwatch::install {
     command => "/usr/bin/chown -R ${$cloudwatch::user}:${$cloudwatch::user} ${cloudwatch::base_dir}",
     require => User[$cloudwatch::user],
   } ->
-  python::virtualenv { "${cloudwatch::base_dir}/venv":
-    ensure       => present,
-    version      => system,
-    requirements => $pip_requirements,
-    venv_dir     => "${cloudwatch::base_dir}/venv",
-    owner        => $cloudwatch::user,
-    group        => $cloudwatch::user,
-    require      => [File[$cloudwatch::base_dir], File[$pip_requirements]],
+  exec { 'install pip requirements.txt':
+    command => "pip install -r $pip_requirements",
+    path    => ["/bin", "/usr/bin", "/usr/local/bin"],
+    require => File[$pip_requirements]
   }
 
   # Bootstrap CloudWatch Agent logs

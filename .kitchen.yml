@@ -1,6 +1,9 @@
 ---
 driver:
   name: vagrant
+  customize:
+    name: 'puppet-cloudwatch'
+    natdnshostresolver1: 'on'
 
 provisioner:
   name: puppet_apply
@@ -16,7 +19,7 @@ transport:
   name: sftp
 
 platforms:
-  - name: centos-7.2
+  - name: centos-7.4
 
 verifier:
   name: serverspec

@@ -1,4 +1,1 @@
 ---
-python::virtualenv: 'present'
-python::pip: 'present'
-python::dev: 'present'
