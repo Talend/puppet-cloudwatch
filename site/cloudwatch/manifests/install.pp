@@ -31,7 +31,7 @@ class cloudwatch::install {
   # Requires #
   ############
 
-  require common::packages
+  require ::common::packages
 
   ############
   # Defaults #
