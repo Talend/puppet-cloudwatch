@@ -28,7 +28,7 @@
 #
 # Copyright 2017 Talend, unless otherwise noted.
 #
-class cloudwatch (
+class cloudwatch::cloudwatch (
 
   $base_dir         = $cloudwatch::params::base_dir,
   $metrics_dir      = $cloudwatch::params::metrics_dir,
