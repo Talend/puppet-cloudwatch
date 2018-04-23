@@ -75,7 +75,7 @@ class cloudwatch::install {
   # Set a dedicated virtual env with requirements
   exec { 'ensure vitualenv created before doing any pip updates':
     command => "virtualenv ${cloudwatch::base_dir}/venv",
-    path    => ["/bin", "/usr/bin", "/usr/local/bin"],
+    path    => ['/bin', '/usr/bin', '/usr/local/bin'],
     creates => "${cloudwatch::base_dir}/venv",
     require => Class['common::packages'],
   } ->
@@ -89,7 +89,7 @@ class cloudwatch::install {
   } ->
   exec { 'install pip requirements.txt':
     command => "pip install -r $pip_requirements",
-    path    => ["/bin", "/usr/bin", "/usr/local/bin"],
+    path    => ['/bin', '/usr/bin', '/usr/local/bin'],
     require => File[$pip_requirements]
   }
 
