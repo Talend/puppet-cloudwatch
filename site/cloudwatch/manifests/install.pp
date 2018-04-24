@@ -83,6 +83,10 @@ class cloudwatch::install {
     command => "${cloudwatch::base_dir}/venv/bin/pip install --upgrade pip && /bin/touch /var/tmp/pip_update.lock",
     creates => '/var/tmp/pip_update.lock',
   } ->
+  exec { 'ensure setuptools updated before doing any other pip updates':
+    command => "${cloudwatch::base_dir}/venv/bin/pip install --upgrade setuptools && /bin/touch /var/tmp/setuptools_update.lock",
+    creates => '/var/tmp/setuptools_update.lock',
+  } ->
   exec { 'chown for cloudwatch::base_dir':
     command => "/usr/bin/chown -R ${$cloudwatch::user}:${$cloudwatch::user} ${cloudwatch::base_dir}",
     require => User[$cloudwatch::user],
