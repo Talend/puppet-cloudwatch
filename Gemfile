@@ -2,6 +2,7 @@ source 'http://rubygems.org'
 
 gem 'puppet', '~> 3.8'
 gem 'rake'
+gem 'bundler', '<= 1.13.6'
 
 group :test do
   gem 'metadata-json-lint'
