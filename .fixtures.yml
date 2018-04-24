@@ -1,14 +1,17 @@
 fixtures:
   symlinks:
-    cloudwatch: '#{source_dir}'
+    cloudwatch: '#{source_dir}/site/cloudwatch'
+    common: '#{source_dir}/site/common'
   forge_modules:
-    stdlib:     "puppetlabs/stdlib"
-    concat:     "puppetlabs/concat"
-    awscli:     "jdowning/awscli"
-    aws:        "puppetlabs-aws"
-    epel:       "stahnma/epel"
-    sudo:       "saz/sudo"
-  repositories:
-    python:
-      repo:   "git://github.com/mpdude/puppet-python"
-      branch: "rename-pip-package"
+    stdlib:
+      repo: "puppetlabs/stdlib"
+      ref: "4.15.0"
+    concat:
+      repo: "puppetlabs/concat"
+      ref: "1.2.5"
+    epel:
+      repo: "stahnma/epel"
+      ref: "1.2.2"
+    sudo:
+      repo: "saz/sudo"
+      ref: "3.1.0"
