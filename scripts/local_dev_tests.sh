@@ -127,7 +127,7 @@ then
 fi
 
 fTitle "Validating code"
-bundle exec rake validate lint
+bundle exec rake validate lint spec
 RETURN=$?
 test $SYNTAX_ONLY -eq 1 && exit $RETURN
 
