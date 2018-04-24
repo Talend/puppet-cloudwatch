@@ -118,7 +118,7 @@ GEM
       puppet-syntax
       rake
       rspec-puppet
-    rainbow (3.0.0)
+    rainbow (2.2.2)
     rake (11.2.2)
     rspec (3.5.0)
       rspec-core (~> 3.5.0)
@@ -146,7 +146,7 @@ GEM
       builder (< 4)
       rspec-core (>= 2, < 4, != 2.12.0)
     rsync (1.0.9)
-    rubocop (0.55.0)
+    rubocop (0.50.0)
       parallel (~> 1.10)
       parser (>= 2.5)
       powerpack (~> 0.1)
