@@ -105,7 +105,7 @@ fi
 
 if [ ${CLEAN_MODE} -eq 1 ]; then
   fTitle  "Removing legacy installation"
-  for directory in "./modules" "./vendor" "./.bundle" "./.vagrant" "./.kitchen" "./.tmp"; do
+  for directory in "./modules" "./vendor" "./.bundle" "./.vagrant" "./.kitchen" "./.tmp" "./spec/fixtures"; do
     fMessage "Removing directory ${directory}"
     test -n "${directory}" && rm -Rf ${directory}
   done
@@ -127,7 +127,7 @@ then
 fi
 
 fTitle "Validating code"
-bundle exec rake validate lint
+bundle exec rake validate lint spec
 RETURN=$?
 test $SYNTAX_ONLY -eq 1 && exit $RETURN
 
