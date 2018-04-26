@@ -1,3 +1,9 @@
+
+File { backup => false }
+ensure_packages({
+  'epel-release' => { ensure => 'present'},
+  'python2-pip'  => { ensure => 'present', require => Package['epel-release']},
+})
 file { '/root/.aws':
   ensure => directory,
 } ->
@@ -23,4 +29,4 @@ package { 'retries':
   ensure   => installed,
   provider => 'gem',
 } ->
-class { 'cloudwatch': }
+class { '::cloudwatch': }

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe 'cloudwatch' do
-  
+
   describe user('cloudwatch-agent') do
     it { should exist }
   end

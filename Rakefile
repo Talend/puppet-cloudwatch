@@ -18,13 +18,14 @@ end
 
 RuboCop::RakeTask.new
 
-exclude_paths = [
-  "bundle/**/*",
-  "pkg/**/*",
-  "vendor/**/*",
-  "spec/**/*",
-  "examples/**/*",
-]
+exclude_paths = %w(
+  bundle/**/*
+  pkg/**/*
+  vendor/**/*
+  spec/**/*
+  examples/**/*
+  modules/**/*
+)
 
 # Coverage from puppetlabs-spec-helper requires rcov which
 # doesn't work in anything since 1.8.7

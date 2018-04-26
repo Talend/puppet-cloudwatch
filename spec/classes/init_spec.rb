@@ -18,10 +18,6 @@ describe 'cloudwatch' do
     #######################
 
     it do
-      should contain_class('python')
-    end
-
-    it do
       should contain_user('cloudwatch-agent').with({
         :ensure   => 'present',
         :comment  => 'User for CloudWatch Agent',
@@ -46,13 +42,9 @@ describe 'cloudwatch' do
     end
 
     it do
-      is_expected.to contain_python__virtualenv('/opt/cloudwatch-agent/venv').with({
-        :ensure       => 'present',
-        :version      => 'system',
-        :requirements => '/opt/cloudwatch-agent/requirements.txt',
-        :venv_dir     => '/opt/cloudwatch-agent/venv',
-        :owner        => 'cloudwatch-agent',
-        :group        => 'cloudwatch-agent',
+      should contain_exec('ensure vitualenv created before doing any pip updates').with({
+        :command => 'virtualenv /opt/cloudwatch-agent/venv',
+        :creates => '/opt/cloudwatch-agent/venv',
       })
     end
 
