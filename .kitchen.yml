@@ -8,9 +8,6 @@ driver:
 provisioner:
   name: puppet_apply
   manifests_path: examples
-  modules_path: site
-  hiera_data_path: hieradata
-  hiera_data_remote_path: /etc/puppet/hieradata
   ignore_spec_fixtures: true
   custom_facts:
     aws_api_key: <%= ENV['AWS_ACCESS_KEY_ID']%>
