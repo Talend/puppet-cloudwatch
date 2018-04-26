@@ -8,10 +8,13 @@ FORGE
       puppetlabs-stdlib (< 5.0.0, >= 2.3.0)
     stahnma-epel (1.2.2)
       puppetlabs-stdlib (>= 3.0.0)
+    tracywebtech-pip (1.3.4)
+      puppetlabs-stdlib (>= 3.2.1)
 
 DEPENDENCIES
   puppetlabs-concat (~> 1.0)
   puppetlabs-stdlib (< 5.0.0, >= 1.0.0)
   saz-sudo (~> 3.0)
   stahnma-epel (~> 1.0)
+  tracywebtech-pip (~> 1.0)
 

@@ -11,7 +11,8 @@
     {"name":"puppetlabs-concat", "version_requirement": "1.x"},
     {"name":"puppetlabs-stdlib", "version_requirement": ">= 1.0.0 < 5.0.0"},
     {"name":"saz-sudo", "version_requirement": "3.x"},
-    {"name":"stahnma-epel", "version_requirement": "1.x"}
+    {"name":"stahnma-epel", "version_requirement": "1.x"},
+    {"name":"tracywebtech/pip", "version_requirement": "1.x"}
   ]
 }
 

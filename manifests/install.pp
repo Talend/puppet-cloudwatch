@@ -18,6 +18,7 @@
 # Copyright 2017 Talend, unless otherwise noted.
 #
 class cloudwatch::install {
+  require ::pip
 
   ###################
   # Local Variables #
@@ -26,12 +27,6 @@ class cloudwatch::install {
   $metrics_path       = "${cloudwatch::base_dir}/${cloudwatch::metrics_dir}"
   $main_script_path   = "${cloudwatch::base_dir}/${cloudwatch::main_script_name}"
   $pip_requirements   = "${cloudwatch::base_dir}/requirements.txt"
-
-  ############
-  # Requires #
-  ############
-
-  require ::common::packages
 
   ############
   # Defaults #
@@ -46,6 +41,10 @@ class cloudwatch::install {
   ############################
   # Install system resources #
   ############################
+
+  ensure_packages({
+    'virtualenv' => { provider => 'pip', ensure => 'present'},
+  })
 
   validate_absolute_path($cloudwatch::base_dir)
 
@@ -77,7 +76,7 @@ class cloudwatch::install {
     command => "virtualenv ${cloudwatch::base_dir}/venv",
     path    => ['/bin', '/usr/bin', '/usr/local/bin'],
     creates => "${cloudwatch::base_dir}/venv",
-    require => Class['common::packages'],
+    require => Package['virtualenv'],
   } ->
   exec { 'ensure pip updated before doing any other pip updates':
     command => "${cloudwatch::base_dir}/venv/bin/pip install --upgrade pip && /bin/touch /var/tmp/pip_update.lock",

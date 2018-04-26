@@ -1,9 +1,6 @@
-
+# file for local tests
 File { backup => false }
-ensure_packages({
-  'epel-release' => { ensure => 'present'},
-  'python2-pip'  => { ensure => 'present', require => Package['epel-release']},
-})
+
 file { '/root/.aws':
   ensure => directory,
 } ->
