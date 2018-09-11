@@ -91,8 +91,7 @@ class cloudwatch::install {
     require => User[$cloudwatch::user],
   } ->
   exec { 'install pip requirements.txt':
-    command => "pip install -r ${pip_requirements}",
-    path    => ['/bin', '/usr/bin', '/usr/local/bin'],
+    command => "${cloudwatch::base_dir}/venv/bin/pip install -r ${pip_requirements}",
     require => File[$pip_requirements],
   }
 
@@ -101,5 +100,4 @@ class cloudwatch::install {
     ensure => directory,
     mode   => '0755',
   }
-
 }
